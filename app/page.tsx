@@ -3,6 +3,23 @@ import DynamicGuts from './components/DynamicGuts';
 import CheckoutPanel from './components/CheckoutPanel';
 import CustomizationPanel from './components/CustomizationPanel';
 
+/**
+ * Home Page: Berserk Jacket Archive — Interactive Manga Manuscript Experience
+ * 
+ * Layout Architecture:
+ * 1. Centered Manga Spread:
+ *    - Constrained max-width container (max-w-4xl) mimicking an authentic tankobon/magazine two-page spread.
+ * 2. Vertical Japanese Margin Asides:
+ *    - Left & Right vertical writing mode text ([writing-mode:vertical-rl]) carrying canonical quotes and publisher markers.
+ * 3. 5-Panel Manga Layout:
+ *    - Row 1: Panel 01 (The Black Swordsman) & Panel 02 (Berserker Armor) with interactive 60-frame scrubbers.
+ *    - Row 2: Panel 03 Centerpiece showing front heavy-gauge embroidery with direct purchase CTA.
+ *    - Row 3: Panels 04 & 05 dual diagonal split featuring Custom Studio & Bespoke Import.
+ * 4. Authentic Editorial Manuscript Elements:
+ *    - Header bar with Young Animal serialization badge, chapter 315 citation, reading order indicator, and page number.
+ *    - Gutter quote lines between rows with Japanese philosophical lore.
+ *    - Publishing footer crediting Hakusensha, Studio Gaga, and Kentaro Miura.
+ */
 export default function Home() {
   return (
     <main className="min-h-screen w-full bg-white text-black font-sans py-6 sm:py-10 px-3 sm:px-6 overflow-x-hidden flex justify-center">
@@ -16,7 +33,10 @@ export default function Home() {
             LEFT MARGIN: Canonical Berserk Quote (Skull Knight to Guts)
             「もがき、足掻き、生き延びろ――それが貴様の抗う道だ」
            ===================================================================== */}
-        <aside className="hidden sm:flex flex-col items-center justify-between py-6 select-none shrink-0 w-6 text-stone-800">
+        <aside 
+          className="hidden sm:flex flex-col items-center justify-between py-6 select-none shrink-0 w-6 text-stone-800"
+          aria-label="Manuscript Left Margin"
+        >
           <span className="text-[9px] font-mono text-stone-400 [writing-mode:vertical-rl] tracking-widest">
             ┼ MARGIN ┼
           </span>
@@ -52,7 +72,7 @@ export default function Home() {
           </header>
 
           {/* ===================================================================
-              ROW 1: TWO PANELS (Top-Left & Top-Right)
+              ROW 1: TWO PANELS (Interactive 60-Frame Sequence Scrubbers)
              =================================================================== */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             
@@ -105,7 +125,7 @@ export default function Home() {
           </div>
 
           {/* ===================================================================
-              ROW 3: PANEL 04 - CUSTOMIZATION PANEL
+              ROW 3: PANEL 04 & PANEL 05 - DIAGONAL SPLIT CUSTOMIZATION PANEL
              =================================================================== */}
           <CustomizationPanel />
 
@@ -129,7 +149,10 @@ export default function Home() {
             RIGHT MARGIN: Young Animal Serialization Tagline
             「因果の螺旋に抗う、黒い剣士の咆哮――!!」
            ===================================================================== */}
-        <aside className="hidden sm:flex flex-col items-center justify-between py-6 select-none shrink-0 w-6 text-stone-800">
+        <aside 
+          className="hidden sm:flex flex-col items-center justify-between py-6 select-none shrink-0 w-6 text-stone-800"
+          aria-label="Manuscript Right Margin"
+        >
           <span className="text-[9px] font-mono text-stone-400 [writing-mode:vertical-rl] tracking-widest">
             ┼ BERSERK ┼
           </span>

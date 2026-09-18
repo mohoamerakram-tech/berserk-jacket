@@ -1,3 +1,6 @@
+/**
+ * Interface representing an anime series partner logo in the animated marquee
+ */
 export interface AnimeLogo {
   id: string;
   name: string;
@@ -5,6 +8,17 @@ export interface AnimeLogo {
   href?: string;
 }
 
+/**
+ * Interface for primary navigation menu items
+ */
+export interface NavLink {
+  label: string;
+  href: string;
+}
+
+/**
+ * List of featured anime franchises displayed inside the expandable marquee drawer
+ */
 export const ANIME_LOGOS: AnimeLogo[] = [
   {
     id: 'berserk',
@@ -56,9 +70,13 @@ export const ANIME_LOGOS: AnimeLogo[] = [
   },
 ];
 
-export const NAV_LINKS = [
+/**
+ * Top-level navigation routes for the header and mobile menu
+ */
+export const NAV_LINKS: NavLink[] = [
   { label: 'Home', href: '/' },
   { label: 'Collection', href: '#collection' },
   { label: 'Lookbook', href: '#lookbook' },
   { label: 'Archive', href: '#archive' },
 ];
+

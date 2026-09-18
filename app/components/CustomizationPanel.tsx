@@ -3,17 +3,38 @@
 import React from 'react';
 import Image from 'next/image';
 
+/**
+ * Props configuration for CustomizationPanel (Panels 04 & 05)
+ */
 interface CustomizationPanelProps {
+  /** Callback triggered when user clicks 'Try Custom ->' on Panel 04 */
   onTryCustom?: () => void;
+  /** Callback triggered when user clicks 'Import Design ->' on Panel 05 */
   onImportDesign?: () => void;
+  /** Optional Tailwind class overrides */
   className?: string;
 }
 
+/**
+ * CustomizationPanel: Dual Diagonal Split Manga Panel Spread
+ * 
+ * Layout Architecture:
+ * 1. Slanted Geometry:
+ *    - Panel 04 (Left): CSS clipPath polygon(0% 0%, 51% 0%, 33% 100%, 0% 100%).
+ *    - Panel 05 (Right): CSS clipPath polygon(53% 0%, 100% 0%, 100% 100%, 35% 100%).
+ *    - The 2% gap (51%->53% at top, 33%->35% at bottom) forms a dynamic diagonal manga slash.
+ * 2. Crisp SVG Vector Overlay:
+ *    - An absolute SVG overlay (z-20) draws high-precision 6px black borders aligned to the polygon vertices.
+ * 3. Direct Manga Typography:
+ *    - Text in both panels is placed directly over the photography with intense drop shadows and text shadows,
+ *      ensuring supreme legibility without obscuring artwork behind muddy background cards.
+ */
 export default function CustomizationPanel({
   onTryCustom,
   onImportDesign,
   className = '',
 }: CustomizationPanelProps) {
+  // Panel 04 action handler: scrolls smoothly to customization studio or invokes callback
   const handleTryCustom = () => {
     if (onTryCustom) {
       onTryCustom();
@@ -26,6 +47,7 @@ export default function CustomizationPanel({
     }
   };
 
+  // Panel 05 action handler: scrolls smoothly to design upload or invokes callback
   const handleImportDesign = () => {
     if (onImportDesign) {
       onImportDesign();
@@ -181,3 +203,4 @@ export default function CustomizationPanel({
     </div>
   );
 }
+

@@ -3,12 +3,28 @@
 import React from 'react';
 import Image from 'next/image';
 
+/**
+ * Props for CheckoutPanel (Panel 03)
+ */
 interface CheckoutPanelProps {
+  /** Optional custom handler when the user clicks 'BUY NOW - 300 Dh' */
   onBuyNow?: () => void;
+  /** Optional Tailwind class overrides */
   className?: string;
 }
 
+/**
+ * CheckoutPanel: Centerpiece Manga Panel (Panel 03)
+ * 
+ * Features:
+ * 1. Visual Showcase: Full-bleed product photography of the front jacket embroidery (/images/front-designe-new.jpg).
+ * 2. Subtle Vignette: Soft gradient from bottom to enhance text contrast without obscuring the jacket.
+ * 3. Direct Typography Overlay: Bold typography rendered directly on the artwork using deep CSS text shadows
+ *    ([text-shadow:_0_2px_4px_black,_0_0_12px_black]), avoiding intrusive background cards.
+ * 4. High-Contrast Manga CTA: White tactile button with 2px black border and red hard drop shadow (#dc2626).
+ */
 export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPanelProps) {
+  // Trigger external checkout callback or fallback smoothly to order form if present
   const handleBuyNow = () => {
     if (onBuyNow) {
       onBuyNow();
@@ -34,17 +50,17 @@ export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPane
         className="object-cover object-center"
       />
 
-      {/* Subtle vignette for contrast and legibility */}
+      {/* Subtle dark vignette for contrast and legibility */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
 
-      {/* Top Manga Panel Tag */}
+      {/* Top Manga Panel Tag Badge */}
       <div className="absolute top-3 left-3 z-10">
         <span className="bg-black/80 text-white text-[10px] font-mono font-bold px-2 py-0.5 uppercase tracking-wider border border-white/60 drop-shadow-[0_1px_3px_black]">
           PANEL 03 // 珠玉の刺繍
         </span>
       </div>
 
-      {/* Manga Typography & CTA directly overlaid over the image (NO box) */}
+      {/* Manga Typography & CTA directly overlaid over the image (NO opaque box) */}
       <div className="absolute bottom-4 left-4 sm:left-6 z-10 max-w-sm sm:max-w-md space-y-2.5">
         {/* Authentic Manga Narrative Typography */}
         <div className="space-y-1">
@@ -60,7 +76,7 @@ export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPane
           </p>
         </div>
 
-        {/* High-Contrast Manga CTA Button (Matching Panel 4 Style) */}
+        {/* High-Contrast Manga CTA Button */}
         <div>
           <button
             type="button"
@@ -76,3 +92,4 @@ export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPane
     </div>
   );
 }
+

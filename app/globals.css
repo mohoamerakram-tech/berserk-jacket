@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* --------------------------------------------------------------------------
+   Design Tokens & CSS Variables
+   -------------------------------------------------------------------------- */
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
@@ -12,6 +15,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* --------------------------------------------------------------------------
+   Global Document Reset & Typography Defaults
+   -------------------------------------------------------------------------- */
 body {
   background-color: #ffffff;
   color: #0a0a0a;
@@ -19,7 +25,10 @@ body {
   overflow-x: hidden;
 }
 
-/* Infinite Marquee Animation for Anime Logos */
+/* --------------------------------------------------------------------------
+   Infinite Marquee Keyframes & Utilities for Partner Anime Logos
+   Translates from 0% to -50% to seamlessly loop duplicated logo sets
+   -------------------------------------------------------------------------- */
 @keyframes marquee {
   0% {
     transform: translateX(0%);
@@ -35,7 +44,7 @@ body {
   animation: marquee 25s linear infinite;
 }
 
+/* Pause marquee scroll on hover so users can comfortably click anime links */
 .animate-marquee:hover {
   animation-play-state: paused;
 }
-
