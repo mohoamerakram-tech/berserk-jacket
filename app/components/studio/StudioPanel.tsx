@@ -15,7 +15,6 @@
  *     Record<StudioView, StudioLayer[]>
  * - Currently selected layer ID on the active view
  * - Pending motif configuration (motif, thread color, size) used when adding a new layer
- * - Customer contact details and quote request intake
  *
  * ARCHITECTURAL RULE — INDEPENDENT LAYERS & MULTIPLE COPIES:
  * Each placed logo is an independent StudioLayer with its own id.
@@ -30,11 +29,11 @@
  * HOW IT CONNECTS:
  * - Mounted in `app/custom-studio/page.tsx` under the "PRESET STUDIO" tab.
  * - Passes reactive layers and drag handlers to `StudioPreview` (left column).
- * - Houses the option pickers, `AddLogoButton`, and `LayerList` (right column).
+ * - Houses the option pickers and `LayerList` (right column).
  * ============================================================================
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   DEFAULT_LAYER_POSITION,
   LogoColor,
@@ -51,8 +50,8 @@ import JacketColorPicker from './JacketColorPicker';
 import LogoPicker from './LogoPicker';
 import LogoColorPicker from './LogoColorPicker';
 import LogoSizePicker from './LogoSizePicker';
-import AddLogoButton from './AddLogoButton';
 import LayerList from './LayerList';
+import WhatsAppButton from '../shop/WhatsAppButton';
 
 // Browser-safe unique ID generator
 const generateUUID = (): string => {
@@ -89,22 +88,15 @@ export default function StudioPanel() {
 
   // Track the actively selected layer for in-context editing
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(
-    initialFrontLayerId
+    initialFrontLayer.id
   );
 
-  // Pending motif configuration — staged until the customer clicks "ADD LOGO"
+  // Default color and size apply to each newly clicked motif.
   const [pendingLogoId, setPendingLogoId] = useState<string>(
     LOGOS[0]?.id || 'brand-of-sacrifice'
   );
   const [pendingColorId, setPendingColorId] = useState<LogoColor>('crimson');
   const [pendingSize, setPendingSize] = useState<LogoSize>('medium');
-
-  // Customer Contact Information for Bespoke Quote
-  const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
-  const [notes, setNotes] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [quoteReference, setQuoteReference] = useState('');
 
   // --------------------------------------------------------------------------
   // DERIVED DATA RESOLUTION
@@ -116,7 +108,6 @@ export default function StudioPanel() {
 
   const currentLayers = layers[view];
   const currentLimit = MAX_LAYERS[view];
-  const canAddMore = currentLayers.length < currentLimit;
 
   const selectedLayer =
     currentLayers.find((l) => l.id === selectedLayerId) ?? null;
@@ -134,25 +125,30 @@ export default function StudioPanel() {
   // --------------------------------------------------------------------------
   // LAYER MUTATION ACTIONS
   // --------------------------------------------------------------------------
-  // Adding always appends. The customer can then drag, resize (via size buttons), recolor, or delete.
-  const addLayer = () => {
-    if (!canAddMore) return;
+  // Clicking a motif auto-places a new, independently editable layer on the current view.
+  function handleMotifClick(logoId: string) {
+    // Keep the picker selection current even when this side is full.
+    setPendingLogoId(logoId);
+    if (currentLayers.length >= MAX_LAYERS[view]) return;
+    // A fresh ID lets repeated copies of the same motif move and delete independently.
     const newId = generateUUID();
     const newLayer: StudioLayer = {
       id: newId,
-      logoId: pendingLogoId,
+      logoId,
       colorId: pendingColorId,
       size: pendingSize,
       xPercent: DEFAULT_LAYER_POSITION[view].xPercent,
       yPercent: DEFAULT_LAYER_POSITION[view].yPercent,
     };
 
+    // Append to the active side while preserving the other side's layers.
     setLayers((prev) => ({
       ...prev,
       [view]: [...prev[view], newLayer],
     }));
+    // Select the new layer so its outline and editing toolbar appear immediately.
     setSelectedLayerId(newId);
-  };
+  }
 
   // One updater for every kind of layer edit keeps the code short and consistent.
   const updateLayer = (id: string, patch: Partial<StudioLayer>) => {
@@ -178,65 +174,10 @@ export default function StudioPanel() {
     setSelectedLayerId(id);
   };
 
-  // ============================================================================
-  // STEP 9 — ORDER / REQUEST STILL VISUAL ONLY
-  // TODO: When business WhatsApp ordering is wired, construct the multi-layer payload:
-  // - Garment Base: selectedJacket.label
-  // - FRONT LAYERS (up to 3):
-  //     layers.front.map(l => `${logo.label} (${l.size.toUpperCase()}, ${l.colorId}, ${l.xPercent}%X, ${l.yPercent}%Y)`)
-  // - BACK LAYERS (up to 6):
-  //     layers.back.map(l => `${logo.label} (${l.size.toUpperCase()}, ${l.colorId}, ${l.xPercent}%X, ${l.yPercent}%Y)`)
-  // - Customer: clientName, Phone: clientPhone, Notes: notes
-  // Deep link: https://wa.me/2126XXXXXXXX?text=...
-  // ============================================================================
-  const handleRequestQuote = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!clientName || !clientPhone) {
-      alert('Please provide your name and phone number to request a quote.');
-      return;
-    }
-    const generatedRef = `QUOTE-${Math.floor(10000 + Math.random() * 90000)}`;
-    setQuoteReference(generatedRef);
-    setIsSubmitted(true);
-  };
-
   return (
     <div className="w-full">
-      {isSubmitted ? (
-        /* Confirmation State */
-        <div className="border-[3px] border-black bg-stone-950 text-white p-8 sm:p-12 text-center space-y-4 shadow-sm max-w-2xl mx-auto">
-          <div className="inline-block bg-[#dc2626] text-white font-mono font-bold text-xs px-3 py-1 uppercase tracking-widest border border-white/40">
-            ORDER INTAKE // 受付完了
-          </div>
-          <h2 className="font-sans font-black text-2xl sm:text-3xl uppercase tracking-tight text-white">
-            QUOTE REQUEST DISPATCHED
-          </h2>
-          <div className="font-mono text-sm text-stone-300 space-y-1">
-            <p>
-              REFERENCE:{' '}
-              <span className="text-[#dc2626] font-bold">{quoteReference}</span>
-            </p>
-            <p className="text-xs text-stone-400">
-              GARMENT: {selectedJacket.label}
-            </p>
-            <p className="text-[11px] text-stone-400 font-mono">
-              SPECIFICATION: {layers.front.length} FRONT LOGOS / {layers.back.length} BACK LOGOS
-            </p>
-          </div>
-          <p className="font-mono text-xs text-stone-300 max-w-md mx-auto uppercase pt-2">
-            Our atelier will contact {clientName} via WhatsApp ({clientPhone}) to confirm thread specifications and delivery timeline.
-          </p>
-          <button
-            type="button"
-            onClick={() => setIsSubmitted(false)}
-            className="mt-4 bg-white hover:bg-stone-200 text-black font-mono font-bold text-xs uppercase px-5 py-2.5 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] transition-all cursor-pointer"
-          >
-            CONFIGURE ANOTHER PIECE ◄
-          </button>
-        </div>
-      ) : (
-        /* Two-Column Studio Layout */
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8 items-start">
+      {/* Two-Column Studio Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8 items-start">
           {/* Column 1: Live Interactive Preview with View Toggle & In-Context Toolbar */}
           <StudioPreview
             jacket={selectedJacket}
@@ -250,11 +191,8 @@ export default function StudioPanel() {
             onDeleteLayer={removeLayer}
           />
 
-          {/* Column 2: Workshop Option Controls, Add Button, Layer List & Contact */}
-          <form
-            onSubmit={handleRequestQuote}
-            className="border-[3px] border-black bg-white p-6 sm:p-8 space-y-6 shadow-sm"
-          >
+          {/* Column 2: Workshop Option Controls, Layer List & Quote CTA */}
+          <div className="border-[3px] border-black bg-white p-6 sm:p-8 space-y-6 shadow-sm">
             {/* Header Title */}
             <div className="border-b-2 border-black pb-3">
               <div className="text-[10px] font-mono text-[#dc2626] font-bold tracking-widest uppercase flex items-center gap-1.5 mb-1">
@@ -280,24 +218,24 @@ export default function StudioPanel() {
             {/* Flow Guidance Header */}
             <div className="pt-2 border-t border-stone-200">
               <div className="font-mono font-bold text-xs text-black uppercase tracking-wider">
-                PICK A MOTIF, COLOR, AND SIZE — THEN CLICK &apos;ADD LOGO&apos;
+                CLICK A MOTIF TO PLACE IT. DRAG ON THE JACKET TO POSITION.
               </div>
               <p className="font-mono text-[10px] text-stone-500 uppercase mt-0.5">
                 Customize the pending graphic before stamping it onto the garment.
               </p>
             </div>
 
-            {/* 2. Select Embroidery Motif (sets pendingLogoId) */}
+            {/* 2. Select Embroidery Motif (places a new layer) */}
             <OptionGroup label="2. SELECT EMBROIDERY MOTIF // 刺繍図案:">
               <LogoPicker
                 value={pendingLogoId}
-                onChange={setPendingLogoId}
+                onChange={handleMotifClick}
                 logos={LOGOS}
               />
             </OptionGroup>
 
             {/* 3. Thread Color (sets pendingColorId) */}
-            <OptionGroup label="3. THREAD COLOR // 糸色選択:">
+            <OptionGroup label="3. DEFAULT THREAD COLOR // 標準糸色:">
               <LogoColorPicker
                 value={pendingColorId}
                 onChange={(id) => setPendingColorId(id as LogoColor)}
@@ -306,21 +244,12 @@ export default function StudioPanel() {
             </OptionGroup>
 
             {/* 4. Embroidery Size (sets pendingSize) */}
-            <OptionGroup label="4. EMBROIDERY SIZE // 刺繍寸法:">
+            <OptionGroup label="4. DEFAULT SIZE // 標準寸法:">
               <LogoSizePicker
                 value={pendingSize}
                 onChange={setPendingSize}
               />
             </OptionGroup>
-
-            {/* 5. Add Logo Button */}
-            <AddLogoButton
-              view={view}
-              count={currentLayers.length}
-              max={currentLimit}
-              canAdd={canAddMore}
-              onAdd={addLayer}
-            />
 
             {/* 6. Placed Layers on Current Perspective */}
             <LayerList
@@ -333,57 +262,6 @@ export default function StudioPanel() {
               onDelete={removeLayer}
             />
 
-            {/* 7. Contact Details */}
-            <div className="border-t-2 border-black pt-4 space-y-4">
-              <div className="font-mono text-xs font-bold uppercase text-black">
-                CONTACT DETAILS // ご注文者情報
-              </div>
-
-              {/* Customer Name */}
-              <div className="space-y-1">
-                <label className="block font-mono text-xs font-bold uppercase text-black">
-                  YOUR NAME *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Guts of the Black Swordsman"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="w-full p-2.5 border-2 border-black font-mono text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#dc2626]"
-                />
-              </div>
-
-              {/* Phone / WhatsApp */}
-              <div className="space-y-1">
-                <label className="block font-mono text-xs font-bold uppercase text-black">
-                  PHONE / WHATSAPP *
-                </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="e.g. +212 600 000 000"
-                  value={clientPhone}
-                  onChange={(e) => setClientPhone(e.target.value)}
-                  className="w-full p-2.5 border-2 border-black font-mono text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#dc2626]"
-                />
-              </div>
-
-              {/* Additional Notes */}
-              <div className="space-y-1">
-                <label className="block font-mono text-xs font-bold uppercase text-black">
-                  SPECIAL WORKSHOP NOTES (OPTIONAL)
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Special instructions regarding thread density, sizing, or custom placement requests..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="w-full p-2.5 border-2 border-black font-mono text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#dc2626] resize-none"
-                />
-              </div>
-            </div>
-
             {/* Estimated Quote & CTA */}
             <div className="pt-2">
               <div className="flex items-center justify-between font-mono text-xs font-bold mb-3 border-t border-stone-200 pt-3">
@@ -395,17 +273,13 @@ export default function StudioPanel() {
                 </span>
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-black hover:bg-stone-900 active:bg-stone-800 text-white font-mono font-black uppercase text-xs sm:text-sm tracking-widest py-3.5 px-6 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
-              >
-                <span>REQUEST BESPOKE QUOTE</span>
-                <span aria-hidden="true">→</span>
-              </button>
+              <WhatsAppButton
+                label="REQUEST QUOTE VIA WHATSAPP"
+                className="w-full"
+              />
             </div>
-          </form>
-        </div>
-      )}
+          </div>
+      </div>
     </div>
   );
 }
