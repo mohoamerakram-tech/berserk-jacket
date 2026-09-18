@@ -8,14 +8,14 @@ interface DynamicGutsProps {
   sequenceFolder: string;
   totalFrames: number;
   label?: string;
-  caption?: string;
+  className?: string;
 }
 
 export default function DynamicGuts({
   sequenceFolder,
   totalFrames,
   label,
-  caption,
+  className = 'aspect-[4/3]',
 }: DynamicGutsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -69,7 +69,7 @@ export default function DynamicGuts({
       img.onerror = () => {
         if (isCancelled) return;
         console.error(`Failed to load: ${src}`);
-        setErrorMsg(`Missing image: guts_${frameIndex}.webp`);
+        setErrorMsg(`Missing: guts_${frameIndex}.webp`);
       };
 
       img.src = src;
@@ -139,52 +139,47 @@ export default function DynamicGuts({
   };
 
   return (
-    <div className="w-full">
-      {/* Manga Panel Box */}
-      <div
-        ref={containerRef}
-        className="relative w-full aspect-video bg-black border-4 border-black shadow-md overflow-hidden cursor-ew-resize select-none"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* Loading overlay */}
-        {!imagesLoaded && !errorMsg && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white text-black font-mono text-sm tracking-wider">
-            Loading panel... {loadPercent}%
-          </div>
-        )}
-
-        {/* Error message */}
-        {errorMsg && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white text-red-600 font-mono text-xs p-4">
-            {errorMsg}
-          </div>
-        )}
-
-        {/* Canvas animation */}
-        <canvas
-          ref={canvasRef}
-          className={`w-full h-full object-contain transition-opacity duration-300 ${
-            imagesLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-
-        {/* Panel label tag (top left) */}
-        {label && (
-          <div className="absolute top-2 left-2 bg-white text-black text-[11px] font-mono font-bold px-2 py-0.5 uppercase tracking-wider border border-black pointer-events-none">
-            {label}
-          </div>
-        )}
-      </div>
-
-      {/* Manga Panel Caption (simple bottom gutter) */}
-      {caption && (
-        <p className="mt-2 text-xs font-mono text-stone-600 tracking-wide">
-          {caption}
-        </p>
+    <div
+      ref={containerRef}
+      className={`relative w-full h-full bg-black overflow-hidden cursor-ew-resize select-none flex items-center justify-center ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Loading overlay */}
+      {!imagesLoaded && !errorMsg && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white text-black font-mono text-xs tracking-wider z-20">
+          LOADING [{loadPercent}%]
+        </div>
       )}
+
+      {/* Error message */}
+      {errorMsg && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white text-red-600 font-mono text-xs p-2 z-20 text-center">
+          {errorMsg}
+        </div>
+      )}
+
+      {/* Canvas animation */}
+      <canvas
+        ref={canvasRef}
+        className={`w-full h-full object-contain transition-opacity duration-300 ${
+          imagesLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
+
+      {/* Panel label tag (top left) */}
+      {label && (
+        <div className="absolute top-2 left-2 bg-white text-black text-[10px] font-mono font-bold px-2 py-0.5 uppercase tracking-wider border border-black pointer-events-none z-10 shadow-sm">
+          {label}
+        </div>
+      )}
+
+      {/* Interaction Hint (bottom right) */}
+      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-[9px] font-mono px-1.5 py-0.5 pointer-events-none z-10 border border-stone-700 hidden sm:block">
+        ◄ SCRUB ►
+      </div>
     </div>
   );
 }

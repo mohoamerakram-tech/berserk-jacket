@@ -1,0 +1,78 @@
+'use client';
+
+import React from 'react';
+import Image from 'next/image';
+
+interface CheckoutPanelProps {
+  onBuyNow?: () => void;
+  className?: string;
+}
+
+export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPanelProps) {
+  const handleBuyNow = () => {
+    if (onBuyNow) {
+      onBuyNow();
+    } else {
+      console.log('Initiating checkout: BUY NOW - 300 Dh');
+      const orderSection = document.getElementById('order-form');
+      if (orderSection) {
+        orderSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  return (
+    <div
+      className={`relative w-full h-[260px] sm:h-[300px] md:h-[340px] border-[3px] border-black bg-black overflow-hidden shadow-sm ${className}`}
+    >
+      {/* Background Image filling the entire panel completely */}
+      <Image
+        src="/images/front-designe-new.jpg"
+        alt="Berserk Embroidered Jacket Front Design"
+        fill
+        priority
+        className="object-cover object-center"
+      />
+
+      {/* Subtle vignette for contrast and legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+
+      {/* Top Manga Panel Tag */}
+      <div className="absolute top-3 left-3 z-10">
+        <span className="bg-black/80 text-white text-[10px] font-mono font-bold px-2 py-0.5 uppercase tracking-wider border border-white/60 drop-shadow-[0_1px_3px_black]">
+          PANEL 03 // 珠玉の刺繍
+        </span>
+      </div>
+
+      {/* Manga Typography & CTA directly overlaid over the image (NO box) */}
+      <div className="absolute bottom-4 left-4 sm:left-6 z-10 max-w-sm sm:max-w-md space-y-2.5">
+        {/* Authentic Manga Narrative Typography */}
+        <div className="space-y-1">
+          <div className="text-[10px] sm:text-xs font-mono font-bold tracking-widest text-red-500 uppercase flex items-center gap-1.5 drop-shadow-[0_1px_3px_black]">
+            <span>◆</span>
+            <span>ARMOR SPEC // 珠玉の刺繍</span>
+          </div>
+          <h3 className="font-sans font-black text-sm sm:text-base md:text-lg uppercase tracking-tight text-white leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,1)] [text-shadow:_0_2px_4px_black,_0_0_12px_black]">
+            PREMIUM HEAVY-GAUGE EMBROIDERY.
+          </h3>
+          <p className="font-mono text-[10px] sm:text-xs uppercase tracking-wider text-stone-300 font-bold drop-shadow-[0_1px_3px_black] [text-shadow:_0_1px_3px_black]">
+            INDESTRUCTIBLE THREAD RELIEF — NEVER PRINTED.
+          </p>
+        </div>
+
+        {/* High-Contrast Manga CTA Button (Matching Panel 4 Style) */}
+        <div>
+          <button
+            type="button"
+            onClick={handleBuyNow}
+            id="panel3-buy-now-cta"
+            className="bg-white hover:bg-stone-200 active:bg-stone-300 text-black font-mono font-black uppercase text-xs sm:text-sm tracking-widest py-2.5 px-5 sm:px-6 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+          >
+            <span>BUY NOW - 300 Dh</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
