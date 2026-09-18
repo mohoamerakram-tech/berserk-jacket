@@ -1,11 +1,31 @@
+/**
+ * ============================================================================
+ * WHAT THIS FILE DOES:
+ * Centerpiece Manga Panel (Panel 03) displayed on the homepage spread.
+ *
+ * WHY IT EXISTS:
+ * Showcases the hero product (front embroidery design) with direct-on-image
+ * manga typography and an immediate call-to-action to buy or explore the shop.
+ *
+ * HOW IT CONNECTS:
+ * - Rendered in `app/page.tsx` (Row 2 of the 5-panel homepage layout).
+ * - Links to `/shop` or invokes custom `onBuyNow` handler.
+ * ============================================================================
+ */
+
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 /**
- * Props for CheckoutPanel (Panel 03)
+ * Shared tactile manga CTA button styling.
+ * Black/white/red with hard offset drop-shadow (#dc2626) and active depression.
  */
+const CTA_BUTTON_CLASSES =
+  'bg-white hover:bg-stone-200 active:bg-stone-300 text-black font-mono font-black uppercase text-xs sm:text-sm tracking-widest py-2.5 px-5 sm:px-6 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]';
+
 interface CheckoutPanelProps {
   /** Optional custom handler when the user clicks 'BUY NOW - 300 Dh' */
   onBuyNow?: () => void;
@@ -13,29 +33,13 @@ interface CheckoutPanelProps {
   className?: string;
 }
 
-/**
- * CheckoutPanel: Centerpiece Manga Panel (Panel 03)
- * 
- * Features:
- * 1. Visual Showcase: Full-bleed product photography of the front jacket embroidery (/images/front-designe-new.jpg).
- * 2. Subtle Vignette: Soft gradient from bottom to enhance text contrast without obscuring the jacket.
- * 3. Direct Typography Overlay: Bold typography rendered directly on the artwork using deep CSS text shadows
- *    ([text-shadow:_0_2px_4px_black,_0_0_12px_black]), avoiding intrusive background cards.
- * 4. High-Contrast Manga CTA: White tactile button with 2px black border and red hard drop shadow (#dc2626).
- */
 export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPanelProps) {
-  // Trigger external checkout callback or fallback smoothly to order form if present
-  const handleBuyNow = () => {
-    if (onBuyNow) {
-      onBuyNow();
-    } else {
-      console.log('Initiating checkout: BUY NOW - 300 Dh');
-      const orderSection = document.getElementById('order-form');
-      if (orderSection) {
-        orderSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
+  const buttonContent = (
+    <>
+      <span>BUY NOW - 300 Dh</span>
+      <span aria-hidden="true">→</span>
+    </>
+  );
 
   return (
     <div
@@ -78,15 +82,24 @@ export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPane
 
         {/* High-Contrast Manga CTA Button */}
         <div>
-          <button
-            type="button"
-            onClick={handleBuyNow}
-            id="panel3-buy-now-cta"
-            className="bg-white hover:bg-stone-200 active:bg-stone-300 text-black font-mono font-black uppercase text-xs sm:text-sm tracking-widest py-2.5 px-5 sm:px-6 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-          >
-            <span>BUY NOW - 300 Dh</span>
-            <span aria-hidden="true">→</span>
-          </button>
+          {onBuyNow ? (
+            <button
+              type="button"
+              onClick={onBuyNow}
+              id="panel3-buy-now-cta"
+              className={CTA_BUTTON_CLASSES}
+            >
+              {buttonContent}
+            </button>
+          ) : (
+            <Link
+              href="/shop"
+              id="panel3-buy-now-cta"
+              className={CTA_BUTTON_CLASSES}
+            >
+              {buttonContent}
+            </Link>
+          )}
         </div>
       </div>
     </div>

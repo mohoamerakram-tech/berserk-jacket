@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "./components/navigation/Navbar";
+import CartProvider from "@/lib/cart/CartProvider";
+import CartDrawer from "./components/cart/CartDrawer";
 import "./globals.css";
 
 // Configure Geist Sans font for modern UI readability
@@ -25,7 +27,8 @@ export const metadata: Metadata = {
  * RootLayout: The foundational application shell
  * - Injects Google fonts as CSS variables (--font-geist-sans, --font-geist-mono)
  * - Embeds the global persistent Navbar with anime showcase drawer
- * - Wraps main page content with full height and antialiased rendering
+ * - Wraps entire component tree with CartProvider for global cart state
+ * - Mounts single global CartDrawer at the body root level so it sits above all pages
  */
 export default function RootLayout({
   children,
@@ -38,11 +41,17 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {/* Global sticky navigation bar */}
-        <Navbar />
-        
-        {/* Page content rendered here */}
-        {children}
+        {/* Global CartProvider: Provides persistent client-side cart state to entire tree */}
+        <CartProvider>
+          {/* Global sticky navigation bar */}
+          <Navbar />
+          
+          {/* Page content rendered here */}
+          {children}
+
+          {/* Global Cart Drawer: Single instance mounted at root, accessible from any page */}
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

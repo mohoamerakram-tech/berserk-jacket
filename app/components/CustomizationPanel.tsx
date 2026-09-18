@@ -1,11 +1,28 @@
-'use client';
+/**
+ * ============================================================================
+ * WHAT THIS FILE DOES:
+ * Dual Diagonal Split Manga Panel Spread (Panels 04 & 05) on the homepage.
+ *
+ * WHY IT EXISTS:
+ * Promotes Custom Studio embroidery (Panel 04) and Bespoke Artwork Import (Panel 05)
+ * using authentic diagonal manga speed-slash geometry (`clip-path: polygon(...)`).
+ *
+ * HOW IT CONNECTS:
+ * - Rendered in `app/page.tsx` (Row 3 of the 5-panel homepage spread).
+ * - Directs users to `/custom-studio` (Preset mode) and `/custom-studio?tab=import`.
+ * ============================================================================
+ */
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 /**
- * Props configuration for CustomizationPanel (Panels 04 & 05)
+ * Shared tactile manga CTA button styling for Panels 04 & 05.
  */
+const CTA_BUTTON_CLASSES =
+  'bg-white hover:bg-stone-200 active:bg-stone-300 text-black font-mono font-black uppercase text-xs sm:text-sm tracking-widest py-2 sm:py-2.5 px-4 sm:px-5 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]';
+
 interface CustomizationPanelProps {
   /** Callback triggered when user clicks 'Try Custom ->' on Panel 04 */
   onTryCustom?: () => void;
@@ -14,51 +31,11 @@ interface CustomizationPanelProps {
   /** Optional Tailwind class overrides */
   className?: string;
 }
-
-/**
- * CustomizationPanel: Dual Diagonal Split Manga Panel Spread
- * 
- * Layout Architecture:
- * 1. Slanted Geometry:
- *    - Panel 04 (Left): CSS clipPath polygon(0% 0%, 51% 0%, 33% 100%, 0% 100%).
- *    - Panel 05 (Right): CSS clipPath polygon(53% 0%, 100% 0%, 100% 100%, 35% 100%).
- *    - The 2% gap (51%->53% at top, 33%->35% at bottom) forms a dynamic diagonal manga slash.
- * 2. Crisp SVG Vector Overlay:
- *    - An absolute SVG overlay (z-20) draws high-precision 6px black borders aligned to the polygon vertices.
- * 3. Direct Manga Typography:
- *    - Text in both panels is placed directly over the photography with intense drop shadows and text shadows,
- *      ensuring supreme legibility without obscuring artwork behind muddy background cards.
- */
 export default function CustomizationPanel({
   onTryCustom,
   onImportDesign,
   className = '',
 }: CustomizationPanelProps) {
-  // Panel 04 action handler: scrolls smoothly to customization studio or invokes callback
-  const handleTryCustom = () => {
-    if (onTryCustom) {
-      onTryCustom();
-    } else {
-      console.log('Initiating customizer: Try Custom');
-      const customSection = document.getElementById('custom-studio');
-      if (customSection) {
-        customSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
-  // Panel 05 action handler: scrolls smoothly to design upload or invokes callback
-  const handleImportDesign = () => {
-    if (onImportDesign) {
-      onImportDesign();
-    } else {
-      console.log('Initiating customizer: Import Design');
-      const customSection = document.getElementById('custom-studio');
-      if (customSection) {
-        customSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
 
   return (
     <div
@@ -109,15 +86,26 @@ export default function CustomizationPanel({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleTryCustom}
-              id="panel4-try-custom-cta"
-              className="bg-white hover:bg-stone-200 active:bg-stone-300 text-black font-mono font-black uppercase text-xs sm:text-sm tracking-widest py-2 sm:py-2.5 px-4 sm:px-5 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-            >
-              <span>Try Custom</span>
-              <span aria-hidden="true">→</span>
-            </button>
+            {onTryCustom ? (
+              <button
+                type="button"
+                onClick={onTryCustom}
+                id="panel4-try-custom-cta"
+                className={CTA_BUTTON_CLASSES}
+              >
+                <span>Try Custom</span>
+                <span aria-hidden="true">→</span>
+              </button>
+            ) : (
+              <Link
+                href="/custom-studio"
+                id="panel4-try-custom-cta"
+                className={CTA_BUTTON_CLASSES}
+              >
+                <span>Try Custom</span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -164,14 +152,26 @@ export default function CustomizationPanel({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleImportDesign}
-              id="panel5-import-design-cta"
-              className="bg-white hover:bg-stone-200 active:bg-stone-300 text-black font-mono font-black uppercase text-xs sm:text-sm tracking-widest py-2 sm:py-2.5 px-4 sm:px-5 border-2 border-black shadow-[3px_3px_0px_0px_#dc2626] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-            >
-              <span>Import Design -&gt;</span>
-            </button>
+            {onImportDesign ? (
+              <button
+                type="button"
+                onClick={onImportDesign}
+                id="panel5-import-design-cta"
+                className={CTA_BUTTON_CLASSES}
+              >
+                <span>Import Design</span>
+                <span aria-hidden="true">→</span>
+              </button>
+            ) : (
+              <Link
+                href="/custom-studio?tab=import"
+                id="panel5-import-design-cta"
+                className={CTA_BUTTON_CLASSES}
+              >
+                <span>Import Design</span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

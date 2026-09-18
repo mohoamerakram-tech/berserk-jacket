@@ -1,21 +1,35 @@
 'use client';
 
+/**
+ * ============================================================================
+ * WHAT THIS FILE DOES:
+ * Persistent top navigation header containing brand identity, desktop routes,
+ * live cart trigger, expandable partner anime drawer, and mobile menu.
+ *
+ * WHY THIS IS A CLIENT COMPONENT:
+ * Manages interactive client state for:
+ * 1. `showMarquee`: Toggles the expandable partner anime marquee drawer.
+ * 2. `mobileMenuOpen`: Toggles the slide-down navigation menu on mobile viewports.
+ *
+ * HOW IT CONNECTS:
+ * - Mounted globally in `app/layout.tsx` above all page contents.
+ * - Reads route definitions from `./constants.ts`.
+ * - Integrates `<CartIcon />` from `@/app/components/cart/CartIcon`.
+ * - Toggles `<AnimeMarquee />` from `./AnimeMarquee`.
+ * ============================================================================
+ */
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import AnimeMarquee from './AnimeMarquee';
+import CartIcon from '@/app/components/cart/CartIcon';
 import { NAV_LINKS } from './constants';
 
-/**
- * Navbar: Persistent header with brand identity, page navigation, and anime franchise drawer
- * - Sticky positioning at page top (top-0 z-50)
- * - Brand logo linking back to home
- * - Desktop horizontal navigation links
- * - "Anime" toggle button controlling the expandable partner logo marquee
- * - Responsive mobile menu drawer with hamburger/close state
- */
 export default function Navbar() {
+  // Toggle state for the partner anime franchise marquee drawer
   const [showMarquee, setShowMarquee] = useState(false);
+  // Toggle state for mobile hamburger navigation menu
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -27,15 +41,15 @@ export default function Navbar() {
         <Link 
           href="/" 
           className="flex items-center group cursor-pointer py-1"
-          aria-label="Future Stitch Manu Home"
+          aria-label="Home"
         >
           <Image
-            src="/images/fsm-logo.png"
-            alt="Future Stitch Manu"
-            width={160}
-            height={114}
+            src="/images/fsm-logo.jpeg"
+            alt="Future Stitch"
+            width={989}
+            height={463}
             priority
-            className="h-10 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+            className="h-10 sm:h-12 md:h-[50px] w-auto object-contain transition-transform duration-200 group-hover:scale-105"
           />
         </Link>
 
@@ -55,8 +69,11 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Action Controls: Anime Marquee Toggle & Mobile Menu Hamburger */}
+        {/* Action Controls: Cart, Anime Marquee Toggle & Mobile Menu Hamburger */}
         <div className="flex items-center gap-3">
+          {/* Cart Icon with real-time item badge */}
+          <CartIcon />
+
           {/* Toggle button for Partner Anime Marquee */}
           <button
             type="button"

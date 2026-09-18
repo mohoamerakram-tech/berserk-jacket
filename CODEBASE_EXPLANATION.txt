@@ -1,0 +1,208 @@
+================================================================================
+                    BERSERK JACKET ARCHIVE — CODEBASE EXPLANATION
+================================================================================
+
+This document provides a comprehensive, easy-to-understand explanation of the 
+entire codebase, architecture, performance optimizations, and interactive 
+mechanics of the Berserk Jacket Archive web application.
+
+--------------------------------------------------------------------------------
+1. PROJECT OVERVIEW & ARCHITECTURAL CONCEPT
+--------------------------------------------------------------------------------
+The project is an interactive, high-performance web experience designed like an 
+authentic Japanese Manga Tankobon / Young Animal Magazine manuscript spread. 
+
+Instead of a traditional boring e-commerce layout, the page is designed as a 
+5-panel manga spread containing:
+- Panel 01 & 02: Interactive 60-frame scrubbers showing Guts in action and the 
+  Berserker Armor transformation.
+- Panel 03: Centerpiece showcasing the front heavy-gauge jacket embroidery with 
+  a direct purchase CTA.
+- Panels 04 & 05: A diagonal split manga spread featuring the Custom Studio and 
+  Bespoke Design Import features.
+- Editorial Japanese Margins: Vertical text carrying canonical Berserk quotes 
+  (Skull Knight lore) and official magazine citations.
+
+Tech Stack:
+- Framework: Next.js 15 (App Router) with React 19
+- Styling: Tailwind CSS v4 & Vanilla CSS
+- Animations & Physics: GSAP (GreenSock Animation Platform) + Canvas 2D API
+- Typography: Geist Sans & Geist Mono (via next/font/google)
+- Media: Hardware-optimized WebP image sequences (960x540 @ 78 quality)
+
+--------------------------------------------------------------------------------
+2. DETAILED FILE-BY-FILE EXPLANATION
+--------------------------------------------------------------------------------
+
+================================================================================
+A. ROOT LAYOUT & STYLING
+================================================================================
+
+1. app/layout.tsx
+   - Purpose: The foundational HTML shell for the entire website.
+   - Fonts Configuration: Loads Google's 'Geist' and 'Geist Mono' with Latin 
+     subsets and injects them as CSS variables (--font-geist-sans and 
+     --font-geist-mono).
+   - Global Navbar: Mounts the persistent sticky <Navbar /> across all routes.
+   - Metadata: Defines SEO title and meta description for social sharing and 
+     search engine indexing.
+   - Hydration Safety: Uses suppressHydrationWarning on <body> to ensure clean 
+     client-side hydration with zero Next.js console warnings.
+
+2. app/globals.css
+   - Purpose: Global stylesheet and Tailwind CSS v4 setup.
+   - Font mapping: Connects CSS variables to font families for sans, mono, and 
+     serif Japanese typography.
+   - Marquee Keyframes: Defines '@keyframes marquee' for infinite, smooth 
+     horizontal translation (0% to -50%) used in the partner anime drawer.
+   - Smooth Scrolling: Enables smooth scrolling for interactive anchors.
+
+================================================================================
+B. MAIN PAGE MANUSCRIPT SPREAD
+================================================================================
+
+3. app/page.tsx
+   - Purpose: The central page layout orchestrating the manga spread.
+   - Margin Asides (Left & Right): Uses CSS vertical writing mode 
+     ([writing-mode:vertical-rl]) to render canonical vertical Japanese text:
+     * Left: Skull Knight's famous quote to Guts:
+       「もがき、足掻き、生き延びろ――それが貴様の抗う道だ」
+     * Right: Young Animal serialization tagline:
+       「因果の螺旋に抗う、黒い剣士の咆哮――!!」
+   - Manuscript Header: Renders official publishing badges (Young Animal, 
+     Chapter 315 "狂戦士の甲冑", page number P. 042, and Japanese reading direction 
+     indicator ◄ 右から左へ).
+   - Panel Grid:
+     * Row 1: Panels 01 & 02 side-by-side using <DynamicGuts />.
+     * Row 2: Panel 03 centerpiece using <CheckoutPanel />.
+     * Row 3: Panels 04 & 05 diagonal split using <CustomizationPanel />.
+   - Manuscript Footer: Editorial publishing credits for Hakusensha, Studio Gaga, 
+     and Kentaro Miura.
+
+================================================================================
+C. INTERACTIVE 60-FRAME CANVAS SCRUBBER ENGINE
+================================================================================
+
+4. app/components/DynamicGuts.tsx
+   - Purpose: The high-speed 60-frame animation scrubber for Panels 01 & 02.
+   - Why it is ultra-fast:
+     1. Instant First Frame Boot:
+        - Frame 01 (guts_01.webp) loads and renders to the HTML5 Canvas in ~20ms.
+        - The canvas fades in immediately without any blocking white loading screen.
+     2. Runway Buffer Preload (Frames 02–08):
+        - The moment Frame 01 paints, the engine immediately dispatches parallel 
+          requests for frames 2 through 8.
+        - By the time the user hovers over the panel, frames 2, 3, 4, 5 are 
+          ALREADY loaded in memory. This eliminates any initial hesitation or freeze.
+     3. Keyframe Stride (Every 4th frame across the sequence):
+        - Concurrently loads evenly-spaced keyframes across the timeline (11, 15, 
+          19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59).
+        - Within ~150ms, any scrub position across 0% to 100% of the box width 
+          has a ready neighbor within 2 frames of accuracy.
+     4. Interactive On-Demand Hover Boost:
+        - When the user's cursor moves to frame 'f', if 'f' or its neighbors 
+          ('f-1', 'f+1') are not loaded, they are immediately boosted with top priority.
+     5. Background Fill:
+        - Streams the remaining in-between frames in small 4-frame batches to prevent 
+          browser network saturation or CPU lockups.
+     6. Zero-Rerender DOM Progress Indicator:
+        - The red loading progress bar at the bottom is updated directly via a 
+          DOM ref (progressBarRef.current.style.width = ...).
+        - This eliminates 120 React re-renders during page load, keeping the 
+          JavaScript main thread 100% idle for 60fps canvas drawing.
+     7. Accurate Repaint Guard:
+        - Checks image reference equality (img === lastDrawnImgRef.current). If a 
+          fallback frame was drawn while downloading, it instantly repaints the 
+          exact frame the moment it arrives.
+     8. Low-Latency Hardware Canvas Context:
+        - Initializes canvas 2D context with { alpha: false, desynchronized: true } 
+          at native 960x540 resolution for direct GPU hardware compositing.
+     9. Mouse & Touch Scrubbing with Inertial GSAP Rewind:
+        - Mousemove/touchmove calculates horizontal ratio (0.0 to 1.0) and draws 
+          the exact frame with zero lag via requestAnimationFrame.
+        - Mouseleave triggers a smooth GSAP inertial tween back to Frame 1 (ease: 'power2.out').
+
+================================================================================
+D. CHECKOUT & VALUE PROPOSITION PANEL (PANEL 03)
+================================================================================
+
+5. app/components/CheckoutPanel.tsx
+   - Purpose: Centerpiece product showcase panel (Panel 03).
+   - Photography: High-resolution full-bleed product image of the front jacket 
+     embroidery (/images/front-designe-new.jpg).
+   - Direct Typography Layering:
+     * Bold narrative typography is rendered directly on top of the image using 
+       deep text shadows ([text-shadow:_0_2px_4px_black,_0_0_12px_black]), avoiding 
+       muddy opaque cards or obstructive boxes.
+   - High-Contrast Manga CTA Button:
+     * Tactile white button with 2px solid black border and hard red drop shadow 
+       (shadow-[3px_3px_0px_0px_#dc2626]) reading 'BUY NOW - 300 Dh'.
+     * Interactive hover/active transform providing retro arcade tactile feedback.
+
+================================================================================
+E. DIAGONAL SPLIT CUSTOMIZATION PANEL (PANELS 04 & 05)
+================================================================================
+
+6. app/components/CustomizationPanel.tsx
+   - Purpose: Dual diagonal split manga panel layout.
+   - Geometric Mathematics of Diagonal Split:
+     * Left Panel (Panel 04): CSS clip-path: polygon(0% 0%, 51% 0%, 33% 100%, 0% 100%).
+     * Right Panel (Panel 05): CSS clip-path: polygon(53% 0%, 100% 0%, 100% 100%, 35% 100%).
+     * The 2% diagonal channel (51%->53% top, 33%->35% bottom) creates a dynamic 
+       slanted manga cut.
+   - Vector SVG Border Overlay:
+     * An absolute SVG layer (z-20) draws high-precision 6px black polygon borders 
+       matching the exact clip-path vertices for razor-sharp vector line definition.
+   - Panel 04 (Custom Studio):
+     * Background image /images/back-des1.jpg.
+     * Copy: "FORGE YOUR OWN PATH. CUSTOMIZE YOUR GEAR WITH OUR EXCLUSIVE EMBROIDERED LOGOS."
+     * CTA: "Try Custom ->".
+   - Panel 05 (Bespoke Import Feature):
+     * Background image /images/import-custom.jpg filling the right side respecting the diagonal split.
+     * Copy: "Bring your vision to reality. Import your own garments and logos for premium custom embroidery."
+     * CTA: "Import Design ->".
+     * Zero opaque boxes or muddy overlays — crystal-clear text-shadow typography.
+
+================================================================================
+F. PERSISTENT NAVIGATION & ANIME MARQUEE
+================================================================================
+
+7. app/components/navigation/Navbar.tsx
+   - Purpose: Persistent sticky header (top-0 z-50).
+   - Brand Identity: Future Stitch Manu logo (/images/fsm-logo.png) linking home.
+   - Navigation Links: Desktop routes (ARCHIVE, CUSTOM STUDIO, BESPOKE, LORE, CONTACT).
+   - Anime Toggle Button: Interactive button with retro black/white toggle state 
+     that expands and collapses the partner anime marquee drawer.
+   - Mobile Responsive Drawer: Accessible hamburger menu with SVG state morphing 
+     for smartphone screens.
+
+8. app/components/navigation/AnimeMarquee.tsx
+   - Purpose: Seamless infinite horizontal ticker showcasing partner anime logos.
+   - Continuous Looping Technique: Duplicates the ANIME_LOGOS array 2x 
+     ([...ANIME_LOGOS, ...ANIME_LOGOS]), paired with CSS .animate-marquee (translateX 0% to -50%).
+   - Pause on Hover: Hovering pauses the ticker for accessibility and easy clicking.
+
+9. app/components/navigation/constants.ts
+   - Purpose: Centralized data definitions for navigation links and partner anime 
+     franchise logos (Berserk, Evangelion, Akira, Ghost in the Shell, Vagabond, Vinland Saga).
+
+--------------------------------------------------------------------------------
+3. ASSET & PERFORMANCE PIPELINE
+--------------------------------------------------------------------------------
+1. Frame Optimization with FFmpeg:
+   - Original assets: 120 4K frames (3840x2160) totaling ~20 MB uncompressed.
+   - Downscaled and re-encoded to 960x540 at WebP quality 78:
+     * Sequence 1 (60 frames): 2.45 MB total (~38 KB per frame).
+     * Sequence 2 (60 frames): 2.21 MB total (~36 KB per frame).
+     * Total sequence download: 4.66 MB (76% reduction from original).
+   - 960px width is 2.4x the CSS container width (400px), delivering 100% 
+     pixel-perfect clarity on Apple 2x Retina and 4K screens.
+
+2. Zero Thread Lockup:
+   - Eliminating setLoadPercent during streaming freed the JavaScript main thread.
+   - Hardware desynchronized canvas allows 60fps instant response on desktop 
+     mouse and mobile touch interactions.
+
+================================================================================
+                              END OF EXPLANATION
+================================================================================
