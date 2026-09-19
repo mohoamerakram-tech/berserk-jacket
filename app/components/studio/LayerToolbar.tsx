@@ -100,6 +100,8 @@ export default function LayerToolbar({
                   key={c.id}
                   type="button"
                   title={c.label}
+                  aria-label={c.label}
+                  aria-pressed={isColorActive}
                   onClick={() => onChange({ colorId: c.id as LogoColor })}
                   style={{ backgroundColor: c.hex }}
                   className={`w-5 h-5 rounded-full border border-black cursor-pointer transition-transform ${
@@ -113,6 +115,12 @@ export default function LayerToolbar({
           </div>
         )}
 
+        {!canRecolor && (
+          <span className="border border-stone-300 bg-stone-100 px-2 py-1 font-mono text-[10px] text-stone-600">
+            Original colors
+          </span>
+        )}
+
         {/* Delete Layer Action */}
         <button
           type="button"
@@ -122,6 +130,11 @@ export default function LayerToolbar({
           ✕ DELETE
         </button>
       </div>
+      {!canRecolor && (
+        <p className="w-full font-mono text-[10px] leading-relaxed text-stone-600">
+          This motif keeps its original colors to preserve the artwork. You can still resize and reposition it.
+        </p>
+      )}
     </div>
   );
 }

@@ -23,14 +23,15 @@
 
 import { Logo } from './types';
 
-// All catalog assets are transparent silhouette PNGs, so CSS mask recoloring works.
+// Only single-color motifs use CSS masks. Preserve original colors and tonal
+// detail in illustrated artwork; review this flag when adding new catalog assets.
 export const LOGOS: Logo[] = [
   {
     id: '31a8a9561ac58a68fe0773308c365df5',
     label: 'LOGO 01',
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/31a8a9561ac58a68fe0773308c365df5.png',
-    canRecolor: true,
+    canRecolor: false,
   },
   {
     id: '50736234f59009a66cc1d0438b83b6e0',
@@ -44,7 +45,7 @@ export const LOGOS: Logo[] = [
     label: 'LOGO 03',
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/bb49072aab092e3bb9831c23d44d0556.png',
-    canRecolor: true,
+    canRecolor: false,
   },
   {
     id: 'de49671aa7750f24cac10e188977726c',
@@ -65,13 +66,13 @@ export const LOGOS: Logo[] = [
     label: 'LOGO 06',
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/gemini-generated-image-3e2uh33e2uh33e2u.png',
-    canRecolor: true,
+    canRecolor: false,
   },
   {
     id: 'screenshot-2026-09-17-182923-upscayl-5x-upscayl-standard-4x',
     label: 'LOGO 07',
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/screenshot-2026-09-17-182923-upscayl-5x-upscayl-standard-4x.png',
-    canRecolor: true,
+    canRecolor: false,
   },
 ];

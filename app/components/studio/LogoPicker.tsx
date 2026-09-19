@@ -74,6 +74,11 @@ export default function LogoPicker({ value, onChange, logos }: LogoPickerProps) 
                 <span className="block font-mono text-[8px] text-stone-500 truncate leading-tight">
                   {logo.japaneseLabel}
                 </span>
+                {!logo.canRecolor && (
+                  <span className="mt-1 block font-mono text-[8px] leading-tight text-stone-600">
+                    Original colors
+                  </span>
+                )}
               </div>
             </button>
           );

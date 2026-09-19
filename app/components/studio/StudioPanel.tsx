@@ -33,7 +33,8 @@
  * ============================================================================
  */
 
-import { useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { readStudioDraft, saveStudioDraft } from '@/lib/studio/storage';
 import {
   DEFAULT_LAYER_POSITION,
   MAX_LAYERS,
@@ -61,12 +62,26 @@ const generateUUID = (): string => {
   return `layer-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 };
 
+const subscribeToHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
+
 export default function StudioPanel() {
+  // Mount the editor only after hydration so its first state comes from this
+  // tab's session, without flashing or overwriting the saved design with defaults.
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot);
+  return hydrated ? <StudioEditor /> : (
+    <div role="status" className="p-12 text-center font-mono text-xs">LOADING STUDIO...</div>
+  );
+}
+
+function StudioEditor() {
+  const [draft] = useState(readStudioDraft);
   // --------------------------------------------------------------------------
   // STUDIO STATE (Single Source of Truth)
   // --------------------------------------------------------------------------
-  const [jacketColorId, setJacketColorId] = useState<string>('black');
-  const [view, setView] = useState<StudioView>('front');
+  const [jacketColorId, setJacketColorId] = useState<string>(draft?.jacketColorId ?? 'black');
+  const [view, setView] = useState<StudioView>(draft?.view ?? 'front');
 
   // Initial seed layer so the customer sees an embroidery preview immediately on page load
   const initialFrontLayerId = 'init-front-layer-1';
@@ -82,20 +97,24 @@ export default function StudioPanel() {
 
   // Note: layers is a Record keyed by view — this automatically gives
   // front and back independent arrays.
-  const [layers, setLayers] = useState<Record<StudioView, StudioLayer[]>>({
+  const [layers, setLayers] = useState<Record<StudioView, StudioLayer[]>>(draft?.layers ?? {
     front: [initialFrontLayer],
     back: [],
   });
 
   // Track the actively selected layer for in-context editing
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(
-    initialFrontLayer.id
+    draft ? draft.selectedLayerId : initialFrontLayer.id
   );
 
   // The selected motif stays highlighted after it is placed.
   const [pendingLogoId, setPendingLogoId] = useState<string>(
-    LOGOS[0]?.id || 'brand-of-sacrifice'
+    draft?.pendingLogoId ?? LOGOS[0]?.id ?? 'brand-of-sacrifice'
   );
+
+  useEffect(() => {
+    saveStudioDraft({ jacketColorId, view, layers, selectedLayerId, pendingLogoId });
+  }, [jacketColorId, view, layers, selectedLayerId, pendingLogoId]);
 
   // --------------------------------------------------------------------------
   // DERIVED DATA RESOLUTION
@@ -176,7 +195,13 @@ export default function StudioPanel() {
     setLayers((prev) => ({
       ...prev,
       [view]: prev[view].map((layer) =>
-        layer.id === id ? { ...layer, ...patch } : layer
+        layer.id === id ? {
+          ...layer,
+          ...patch,
+          // Preserve original artwork colors even if another control sends a color edit.
+          ...(layer.type === 'logo' && !LOGOS.find((logo) => logo.id === layer.logoId)?.canRecolor
+            ? { colorId: layer.colorId } : {}),
+        } : layer
       ),
     }));
   };

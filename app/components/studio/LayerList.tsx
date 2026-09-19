@@ -159,13 +159,15 @@ export default function LayerList({
                       <span className="bg-black text-white px-1 py-0.2 text-[9px] font-bold">
                         SIZE: {layer.size[0].toUpperCase()}
                       </span>
-                      <span className="flex items-center gap-1">
+                      {layer.type === 'logo' && !logo?.canRecolor ? (
+                        <span>Original colors</span>
+                      ) : <span className="flex items-center gap-1">
                         <span
                           className="w-2 h-2 rounded-full border border-black/50"
                           style={{ backgroundColor: color.hex }}
                         />
                         <span>{color.label}</span>
-                      </span>
+                      </span>}
                     </div>
                   </div>
                 </div>
