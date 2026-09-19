@@ -53,13 +53,14 @@ export default function StudioPreview({
   onChangeLayer,
   onDeleteLayer,
 }: StudioPreviewProps) {
-  // Resolve motif metadata for the currently active layer
-  const selectedLogo = selectedLayer
+  // Resolve motif metadata only when the selected layer is a catalog logo.
+  const selectedLogo = selectedLayer?.type === 'logo'
     ? LOGOS.find((l) => l.id === selectedLayer.logoId) || null
     : null;
 
+  // On large screens the preview sticks below the navbar and stays within the viewport.
   return (
-    <div className="w-full lg:sticky lg:top-24 space-y-3">
+    <div className="w-full lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] space-y-3">
       {/* Perspective Switcher Buttons */}
       <ViewToggle view={view} onViewChange={onViewChange} />
 

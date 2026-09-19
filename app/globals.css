@@ -1,3 +1,8 @@
+/* Extra display fonts for the studio text picker.
+   Loaded via CSS @import (not next/font) because only the picker
+   uses them and we do not want them preloaded sitewide. */
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Black+Ops+One&family=Bungee&family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@400;700&family=Creepster&family=Major+Mono+Display&family=Metal+Mania&family=Nosifer&family=Oswald:wght@400;700&family=Permanent+Marker&family=Playfair+Display:wght@400;700&family=Rock+Salt&family=Rubik+Mono+One&family=Special+Elite&family=Stardos+Stencil:wght@400;700&display=swap');
+
 @import "tailwindcss";
 
 /* --------------------------------------------------------------------------

@@ -1,11 +1,4 @@
-// REQUIRED FILES — copy these from your local Berserk folder into 
-// public/images/logos/berserk/ BEFORE the studio will look correct:
-//   brand-of-sacrifice.png
-//   dragon-slayer-emblem.png
-//   skull-knight-crest.png
-//   band-of-the-hawk.png
-//   berserker-armor-mark.png
-//   gattsu-sigil.png
+// TOTAL MOTIFS: 7 distinct client assets available in the studio picker.
 
 /**
  * ============================================================================
@@ -30,47 +23,55 @@
 
 import { Logo } from './types';
 
+// All catalog assets are transparent silhouette PNGs, so CSS mask recoloring works.
 export const LOGOS: Logo[] = [
   {
-    id: 'brand-of-sacrifice',
-    label: 'BRAND OF SACRIFICE',
-    japaneseLabel: '生贄の烙印',
-    path: '/images/logos/berserk/brand-of-sacrifice.png',
+    id: '31a8a9561ac58a68fe0773308c365df5',
+    label: 'LOGO 01',
+    japaneseLabel: '刺繍図案',
+    path: '/images/logos/berserk/31a8a9561ac58a68fe0773308c365df5.png',
     canRecolor: true,
   },
   {
-    id: 'dragon-slayer-emblem',
-    label: 'DRAGON SLAYER EMBLEM',
-    japaneseLabel: 'ドラゴンころし',
-    path: '/images/logos/berserk/dragon-slayer-emblem.png',
+    id: '50736234f59009a66cc1d0438b83b6e0',
+    label: 'LOGO 02',
+    japaneseLabel: '刺繍図案',
+    path: '/images/logos/berserk/50736234f59009a66cc1d0438b83b6e0.png',
     canRecolor: true,
   },
   {
-    id: 'skull-knight-crest',
-    label: 'SKULL KNIGHT CREST',
-    japaneseLabel: '髑髏の騎士の紋章',
-    path: '/images/logos/berserk/skull-knight-crest.png',
+    id: 'bb49072aab092e3bb9831c23d44d0556',
+    label: 'LOGO 03',
+    japaneseLabel: '刺繍図案',
+    path: '/images/logos/berserk/bb49072aab092e3bb9831c23d44d0556.png',
     canRecolor: true,
   },
   {
-    id: 'band-of-the-hawk',
-    label: 'BAND OF THE HAWK',
-    japaneseLabel: '鷹の団',
-    path: '/images/logos/berserk/band-of-the-hawk.png',
+    id: 'de49671aa7750f24cac10e188977726c',
+    label: 'LOGO 04',
+    japaneseLabel: '刺繍図案',
+    path: '/images/logos/berserk/de49671aa7750f24cac10e188977726c.png',
     canRecolor: true,
   },
   {
-    id: 'berserker-armor-mark',
-    label: 'BERSERKER ARMOR MARK',
-    japaneseLabel: '狂戦士の甲冑',
-    path: '/images/logos/berserk/berserker-armor-mark.png',
+    id: 'fa65d47dc562676bb02c19b9e6bc6adf',
+    label: 'LOGO 05',
+    japaneseLabel: '刺繍図案',
+    path: '/images/logos/berserk/fa65d47dc562676bb02c19b9e6bc6adf.png',
     canRecolor: true,
   },
   {
-    id: 'gattsu-sigil',
-    label: 'GATTSU SIGIL',
-    japaneseLabel: 'ガッツの印',
-    path: '/images/logos/berserk/gattsu-sigil.png',
+    id: 'gemini-generated-image-3e2uh33e2uh33e2u',
+    label: 'LOGO 06',
+    japaneseLabel: '刺繍図案',
+    path: '/images/logos/berserk/gemini-generated-image-3e2uh33e2uh33e2u.png',
+    canRecolor: true,
+  },
+  {
+    id: 'screenshot-2026-09-17-182923-upscayl-5x-upscayl-standard-4x',
+    label: 'LOGO 07',
+    japaneseLabel: '刺繍図案',
+    path: '/images/logos/berserk/screenshot-2026-09-17-182923-upscayl-5x-upscayl-standard-4x.png',
     canRecolor: true,
   },
 ];

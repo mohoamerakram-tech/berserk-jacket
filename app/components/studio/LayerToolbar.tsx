@@ -25,7 +25,7 @@ import { LOGO_COLORS, LOGO_SIZES } from '@/lib/studio/options';
 interface LayerToolbarProps {
   /** Currently selected layer (null if none selected) */
   layer: StudioLayer | null;
-  /** Resolved motif details for the selected layer */
+  /** Resolved motif details for a selected logo layer */
   logo: Logo | null;
   /** Callback to update properties on the selected layer */
   onChange: (patch: Partial<StudioLayer>) => void;
@@ -39,10 +39,19 @@ export default function LayerToolbar({
   onChange,
   onDelete,
 }: LayerToolbarProps) {
-  // If no layer is actively selected, do not render the toolbar
-  if (!layer || !logo) {
+  // If no layer is actively selected, do not render the toolbar.
+  if (!layer) {
     return null;
   }
+
+  // A missing catalog entry cannot provide safe logo editing controls.
+  if (layer.type === 'logo' && !logo) {
+    return null;
+  }
+
+  const editingLabel =
+    layer.type === 'text' ? `"${layer.text}"` : logo?.label;
+  const canRecolor = layer.type === 'text' || Boolean(logo?.canRecolor);
 
   return (
     <div
@@ -50,11 +59,11 @@ export default function LayerToolbar({
       aria-label="Layer quick edit controls"
       className="w-full bg-white border-2 border-black p-2.5 shadow-[3px_3px_0px_0px_#dc2626] flex flex-wrap items-center justify-between gap-3 select-none transition-all"
     >
-      {/* Label indicating which motif is currently selected */}
+      {/* Label identifies either the selected motif or customer text. */}
       <div className="flex items-center gap-1.5 min-w-0">
         <span className="w-2 h-2 bg-[#dc2626]" />
         <span className="font-mono font-black text-[11px] text-black uppercase truncate">
-          EDITING: {logo.label}
+          EDITING: {editingLabel}
         </span>
       </div>
 
@@ -81,8 +90,8 @@ export default function LayerToolbar({
           })}
         </div>
 
-        {/* Mini Thread Color Swatches (hidden if motif is non-recolorable) */}
-        {logo.canRecolor && (
+        {/* Text and recolorable motifs share the thread color controls. */}
+        {canRecolor && (
           <div className="flex items-center gap-1">
             {LOGO_COLORS.map((c) => {
               const isColorActive = layer.colorId === c.id;

@@ -18,7 +18,12 @@
  * ============================================================================
  */
 
-import { JacketColor, LogoColorSwatch, LogoSize } from './types';
+import {
+  JacketColor,
+  LogoColorSwatch,
+  LogoSize,
+  TextFontId,
+} from './types';
 
 // To add more jacket colors later, copy the mockup files into 
 // /public/images/studio/ and append a new entry here. Do NOT reference 
@@ -74,6 +79,45 @@ export const LOGO_SIZE_SCALE: Record<LogoSize, number> = {
   medium: 22,
   large: 34,
 };
+
+/** Font choices displayed in the text embroidery controls and placed layers. */
+export const TEXT_FONTS: {
+  id: TextFontId;
+  label: string;
+  cssFamily: string;
+  category: 'display' | 'serif' | 'stencil' | 'horror' | 'script';
+}[] = [
+  // Site-core fonts are loaded through next/font in layout.tsx.
+  { id: 'geist-sans', label: 'GEIST SANS', cssFamily: 'var(--font-geist-sans)', category: 'display' },
+  { id: 'geist-mono', label: 'GEIST MONO', cssFamily: 'var(--font-geist-mono)', category: 'display' },
+  { id: 'bebas', label: 'BEBAS', cssFamily: 'var(--font-bebas)', category: 'display' },
+  // Display and impact fonts are loaded on demand through globals.css.
+  { id: 'anton', label: 'ANTON', cssFamily: '"Anton", sans-serif', category: 'display' },
+  { id: 'archivo-black', label: 'ARCHIVO BLACK', cssFamily: '"Archivo Black", sans-serif', category: 'display' },
+  { id: 'oswald', label: 'OSWALD', cssFamily: '"Oswald", sans-serif', category: 'display' },
+  { id: 'rubik-mono', label: 'RUBIK MONO', cssFamily: '"Rubik Mono One", sans-serif', category: 'display' },
+  { id: 'black-ops', label: 'BLACK OPS', cssFamily: '"Black Ops One", sans-serif', category: 'display' },
+  { id: 'bungee', label: 'BUNGEE', cssFamily: '"Bungee", sans-serif', category: 'display' },
+  // Serif fonts provide epic and editorial alternatives.
+  { id: 'cinzel', label: 'CINZEL', cssFamily: '"Cinzel", serif', category: 'serif' },
+  { id: 'cinzel-decorative', label: 'CINZEL DECO', cssFamily: '"Cinzel Decorative", serif', category: 'serif' },
+  { id: 'playfair', label: 'PLAYFAIR', cssFamily: '"Playfair Display", serif', category: 'serif' },
+  { id: 'abril-fatface', label: 'ABRIL FATFACE', cssFamily: '"Abril Fatface", serif', category: 'serif' },
+  // Stencil and mono fonts suit technical embroidery treatments.
+  { id: 'special-elite', label: 'SPECIAL ELITE', cssFamily: '"Special Elite", monospace', category: 'stencil' },
+  { id: 'stardos-stencil', label: 'STARDOS STENCIL', cssFamily: '"Stardos Stencil", monospace', category: 'stencil' },
+  { id: 'major-mono', label: 'MAJOR MONO', cssFamily: '"Major Mono Display", monospace', category: 'stencil' },
+  // Horror and metal faces fit the Berserk visual language.
+  { id: 'metal-mania', label: 'METAL MANIA', cssFamily: '"Metal Mania", cursive', category: 'horror' },
+  { id: 'creepster', label: 'CREEPSTER', cssFamily: '"Creepster", cursive', category: 'horror' },
+  { id: 'nosifer', label: 'NOSIFER', cssFamily: '"Nosifer", cursive', category: 'horror' },
+  // Marker faces provide hand-rendered script options.
+  { id: 'permanent-marker', label: 'PERMANENT MARKER', cssFamily: '"Permanent Marker", cursive', category: 'script' },
+  { id: 'rock-salt', label: 'ROCK SALT', cssFamily: '"Rock Salt", cursive', category: 'script' },
+];
+
+/** Workshop limit for one text embroidery element. */
+export const MAX_TEXT_LENGTH = 16;
 
 // Placement presets were removed — the customer positions the 
 // logo freely by dragging on the jacket preview.

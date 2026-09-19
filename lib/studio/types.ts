@@ -4,12 +4,11 @@
  * Core TypeScript domain definitions for the Custom Embroidery Studio.
  *
  * WHY IT EXISTS:
- * Defines the multi-logo layered data model for separate front and back
+ * Defines the mixed logo-and-text layer model for separate front and back
  * jacket customization:
  * - StudioView: Perspective orientation ('front' | 'back').
- * - StudioLayer: An individual embroidery motif placed on a specific side of the garment,
- *   with its own unique ID, logo reference, thread color, size tier, and coordinates.
- * - MAX_LAYERS: Independent limits per view (max 3 on FRONT, max 6 on BACK).
+ * - StudioLayer: A logo or text embroidery element placed on one garment side.
+ * - MAX_LAYERS: Independent limits per view (max 3 on FRONT, max 3 on BACK).
  * - DEFAULT_LAYER_POSITION: Default drop coordinates when adding a new logo layer.
  *
  * ARCHITECTURAL RULE — INDEPENDENT LAYERS:
@@ -45,6 +44,36 @@ export type LogoColor =
   | 'silver'
   | 'forest';
 
+/** Distinguishes artwork motifs from customer-entered text layers. */
+export type StudioLayerType = 'logo' | 'text';
+
+/**
+ * Font choices supported by text embroidery layers.
+ * The first three use next/font in layout.tsx; the rest use globals.css @import.
+ */
+export type TextFontId =
+  | 'geist-sans'
+  | 'geist-mono'
+  | 'bebas'
+  | 'anton'
+  | 'archivo-black'
+  | 'oswald'
+  | 'rubik-mono'
+  | 'black-ops'
+  | 'bungee'
+  | 'cinzel'
+  | 'cinzel-decorative'
+  | 'playfair'
+  | 'abril-fatface'
+  | 'special-elite'
+  | 'stardos-stencil'
+  | 'major-mono'
+  | 'metal-mania'
+  | 'creepster'
+  | 'nosifer'
+  | 'permanent-marker'
+  | 'rock-salt';
+
 /**
  * An individual embroidery logo layer placed on the garment canvas.
  *
@@ -54,11 +83,9 @@ export type LogoColor =
  * Using a unique `id` (e.g. via `crypto.randomUUID()`) ensures every placed logo can be
  * independently selected, dragged, recolored, resized, and deleted without collision.
  */
-export interface StudioLayer {
+interface StudioLayerBase {
   /** Unique UUID per layer instance (e.g. crypto.randomUUID()) */
   id: string;
-  /** Motif ID referencing LOGOS[].id (e.g. "brand-of-sacrifice") */
-  logoId: string;
   /** Thread color ID referencing LOGO_COLORS[].id */
   colorId: LogoColor;
   /** Size tier referencing LOGO_SIZES[].id ('small' | 'medium' | 'large') */
@@ -69,6 +96,25 @@ export interface StudioLayer {
   yPercent: number;
 }
 
+/** A catalog motif placed as an embroidery layer. */
+export interface StudioLogoLayer extends StudioLayerBase {
+  type: 'logo';
+  /** Motif ID referencing LOGOS[].id (e.g. "brand-of-sacrifice") */
+  logoId: string;
+}
+
+/** A short customer phrase placed as an embroidery layer. */
+export interface StudioTextLayer extends StudioLayerBase {
+  type: 'text';
+  /** Customer-entered copy, limited to 1–16 characters by the UI. */
+  text: string;
+  /** Font used to render the embroidered text. */
+  fontId: TextFontId;
+}
+
+/** Every placed element is either a catalog logo or customer text. */
+export type StudioLayer = StudioLogoLayer | StudioTextLayer;
+
 /**
  * Full state snapshot for the custom studio, maintaining independent layer
  * arrays for front and back garment perspectives.
@@ -78,7 +124,7 @@ export interface StudioState {
   jacketColorId: string;
   /** Placed layers on garment front (max 3) */
   front: StudioLayer[];
-  /** Placed layers on garment back (max 6) */
+  /** Placed layers on garment back (max 3) */
   back: StudioLayer[];
 }
 
@@ -88,7 +134,8 @@ export interface StudioState {
  */
 export const MAX_LAYERS: Record<StudioView, number> = {
   front: 3,
-  back: 6,
+  // Total 6 elements max — 3 on each side; logos and text share the limit.
+  back: 3,
 };
 
 /**

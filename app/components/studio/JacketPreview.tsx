@@ -116,13 +116,14 @@ export default function JacketPreview({
   const maxCapacity = MAX_LAYERS[view];
   const isAtCapacity = layers.length >= maxCapacity;
 
+  // The height cap keeps the entire preview visible while its column is sticky.
   return (
     <div
       ref={jacketWrapRef}
       onPointerMove={handleWrapperPointerMove}
       onPointerUp={handleWrapperPointerUp}
       onPointerCancel={handleWrapperPointerUp}
-      className="relative w-full aspect-[4/5] bg-stone-950 border-[3px] border-black overflow-hidden select-none shadow-sm flex items-center justify-center"
+      className="relative w-full aspect-[4/5] max-h-[70vh] bg-stone-950 border-[3px] border-black overflow-hidden select-none shadow-sm flex items-center justify-center"
       role="region"
       aria-label="Garment Embroidery Live Preview Canvas"
       style={{
@@ -185,13 +186,17 @@ export default function JacketPreview({
               : 'bg-black text-white'
           }`}
         >
-          {layers.length} / {maxCapacity} LOGOS
+          {layers.length} / {maxCapacity} ELEMENTS
         </span>
       </div>
 
-      {/* Dynamic Stencil Overlays for All Layers on this Side */}
+      {/* Dynamic logo and text overlays for all layers on this side. */}
       {layers.map((layer) => {
-        const logo = LOGOS.find((l) => l.id === layer.logoId) || LOGOS[0];
+        // Text layers skip the logo catalog entirely.
+        const logo =
+          layer.type === 'logo'
+            ? LOGOS.find((item) => item.id === layer.logoId) || LOGOS[0]
+            : undefined;
         const colorSwatch =
           LOGO_COLORS.find((c) => c.id === layer.colorId) || LOGO_COLORS[0];
         const sizePercent = LOGO_SIZE_SCALE[layer.size] ?? 22;

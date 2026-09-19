@@ -1,0 +1,294 @@
+# ==============================================================================
+# MASTER ANTIGRAVITY SPECIFICATION PROMPT: HIGH-PERFORMANCE MANGA TANKOBON
+# APPAREL ARCHIVE & INTERACTIVE CUSTOM EMBROIDERY STUDIO
+# ==============================================================================
+#
+# USAGE INSTRUCTIONS:
+# Copy and paste this prompt directly into Antigravity when initiating a new project
+# or asking Antigravity to build an e-commerce / custom studio application based on 
+# this architecture. You can customize the brand name, theme KAWAII Y2K DIGITAL DIARY
+#  and currency while preserving the entire
+# battle-tested architectural foundation.
+# ==============================================================================
+
+You are Antigravity, an elite principal full-stack engineer and high-end creative technologist.
+Your task is to build a state-of-the-art, high-performance web application: an interactive Manga Tankobon Editorial Apparel Archive and Live 2D Multi-Layer Garment Embroidery Custom Studio.
+
+Do NOT build a generic, cookie-cutter SaaS/e-commerce store. The user must be visually blown away at first glance. The experience must feel like a tactile Japanese manga manuscript spread (such as Young Animal / Tankobon editorial publishing) combined with a luxury streetwear atelier.
+
+--------------------------------------------------------------------------------
+1. TECH STACK & DEPENDENCIES
+--------------------------------------------------------------------------------
+Initialize and configure the project with:
+- Framework: Next.js 15+ (App Router) with React 19 and TypeScript 5
+- Styling: Tailwind CSS v4 & PostCSS, augmented with scoped Vanilla CSS
+- Animation & Physics: GSAP 3.15+ and `@gsap/react`
+- Canvas Graphics: Native HTML5 Canvas 2D API (`{ alpha: false, desynchronized: true }`)
+- Fonts: Next.js Google Fonts (`Geist Sans`, `Geist Mono`, and Japanese Serif fallback)
+- State Management: React Context with persistent browser LocalStorage synchronization
+- Asset Pipeline: Hardware-accelerated WebP image sequences (960x540) and transparent PNG silhouette masks
+
+Package dependencies to install:
+```json
+{
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+```
+
+--------------------------------------------------------------------------------
+2. DESIGN SYSTEM & VISUAL AESTHETIC DIRECTIVES
+--------------------------------------------------------------------------------
+1. Manga Manuscript Spread Layout:
+   - Centered container (`max-w-4xl` to `max-w-5xl`) mimicking a physical tankobon two-page spread.
+   - Flanking Vertical Japanese Margins on desktop (`[writing-mode:vertical-rl]`) carrying canonical lore quotes and publisher markings (`【 読み方向 ◄ 右から左へ 】`, `┼ MARGIN ┼`).
+   - Clean gutter lines between panel rows (`┼ ――― quote ――― ┼`).
+   - Editorial Header & Footer: Chapter citations, serialization labels, page numbers (`P. 042`), and studio credits.
+
+2. Neo-Brutalist Tactile Controls:
+   - Thick black outlines (`border-[3px] border-black` or `border-2 border-black`).
+   - Hard offset drop shadows (`shadow-[3px_3px_0px_0px_#dc2626]` or `shadow-[4px_4px_0px_0px_#000]`).
+   - Tactile button press micro-interactions (`hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] hover:shadow-none`).
+   - Monospace metadata badges (`font-mono`, uppercase, tight tracking, bilingual labels: English // 日本語).
+
+3. Direct Typography on Photography:
+   - Eliminate muddy semi-transparent gray cards. Render crisp typography directly over high-res photography using multi-stop drop shadows (`[text-shadow:_0_2px_4px_black,_0_0_12px_black]`).
+
+4. Diagonal Manga Speed-Slash Cuts:
+   - Use CSS polygon `clip-path` for diagonal panel splits (e.g., Left Panel: `polygon(0% 0%, 51% 0%, 33% 100%, 0% 100%)`, Right Panel: `polygon(53% 0%, 100% 0%, 100% 100%, 35% 100%)`).
+   - Overlay an SVG polygon vector border with identical vertices to guarantee razor-sharp 6px dividing borders.
+
+--------------------------------------------------------------------------------
+3. ARCHITECTURAL BLUEPRINT & KEY MODULES
+--------------------------------------------------------------------------------
+
+### MODULE A: ULTRA-LOW-LATENCY 60-FRAME CANVAS SCRUBBER ENGINE (`DynamicSequenceScrubber.tsx`)
+Build an interactive canvas component that turns a 60-frame WebP sequence into a zero-lag interactive scrubber driven by cursor position and touch.
+
+Performance Architecture Requirements:
+1. Instant First Frame Boot:
+   - Frame 01 paints in ~20ms. The canvas fades in immediately without blocking on remaining frames.
+2. Runway Buffer Preload (Frames 2-8):
+   - As soon as Frame 01 renders, immediately fire parallel requests for frames 2 to 8 so initial mouse hovering never hesitates.
+3. Keyframe Stride (Every 4th Frame):
+   - Concurrently fetch evenly spaced keyframes across the timeline (11, 15, 19, 23, 27, 31, 35, 39, etc.). Guarantees an accurate frame is ready across 0% to 100% scrub position within ~150ms.
+4. Interactive On-Demand Priority Boost:
+   - If the user scrubs to frame `f` and it is not yet loaded, boost frame `f` and neighbors (`f-1`, `f+1`) with highest download priority.
+5. Nearest-Neighbor Fallback with Repaint Guard:
+   - While downloading, paint the closest loaded frame. If a fallback was painted, track `lastDrawnImgRef` and instantly repaint the exact frame the millisecond it finishes loading.
+6. Zero-Rerender DOM Progress Bar:
+   - Do NOT store loading percentage in React state. Update the DOM element directly via a `ref` (`progressBarRef.current.style.width = ...`) to eliminate 120+ unneeded React re-renders.
+7. Hardware-Accelerated Context:
+   - Initialize 2D canvas context with `{ alpha: false, desynchronized: true }` at native resolution (e.g. 960x540).
+8. Cursor & Touch Scrubbing with Inertial GSAP Rewind:
+   - Track horizontal ratio (0.0 to 1.0) on `pointermove` and draw frames via `requestAnimationFrame`.
+   - On `pointerleave`, trigger GSAP tween to smoothly glide the sequencer back to Frame 0 (`ease: 'power2.out'`).
+
+---
+
+### MODULE B: HOMEPAGE 5-PANEL MANUSCRIPT SPREAD (`app/page.tsx`)
+Assemble the homepage into a cohesive 5-panel manga layout:
+- Header: Official serialization badge, chapter citation, reading order indicator (`◄ 右から左へ`), and page number.
+- Row 1: Panels 01 & 02 side-by-side using the 60-frame Canvas Scrubber with sequence animations.
+- Gutter 1: Divider line with Japanese canonical lore quote.
+- Row 2: Panel 03 centerpiece showcasing product photography with direct text-shadow typography and tactile purchase CTA button.
+- Gutter 2: Divider line with thematic quote.
+- Row 3: Panels 04 & 05 dual diagonal split showcasing Custom Studio and Bespoke Design Import with diagonal clip-paths and vector borders.
+- Footer: Editorial publishing credits (Publisher, Studio, Creator).
+- Margins: Left and right vertical Japanese typography asides.
+
+---
+
+### MODULE C: INTERACTIVE MULTI-LAYER GARMENT EMBROIDERY STUDIO (`/custom-studio`)
+Build a client-side garment customization suite at `/custom-studio`.
+
+1. Two-Mode Tab Interface:
+   - Tab 1 (Preset Studio): Live interactive multi-layer embroidery simulator.
+   - Tab 2 (Import Bespoke): Intake form for custom vector/artwork upload, garment selection, contact details (WhatsApp/Phone), and instant reference quote generation.
+
+2. State Model & Perspective Isolation (`lib/studio/types.ts`):
+   ```typescript
+   export type StudioView = 'front' | 'back';
+   export type LogoSize = 'small' | 'medium' | 'large';
+   export type LogoColor = 'crimson' | 'white' | 'black' | 'gold' | 'silver' | 'forest';
+
+   export interface StudioLayer {
+     id: string;          // crypto.randomUUID() — unique per placement
+     logoId: string;      // references motif catalog
+     colorId: LogoColor;  // thread color
+     size: LogoSize;      // discrete size tier
+     xPercent: number;    // 0 to 100 clamped coordinate
+     yPercent: number;    // 0 to 100 clamped coordinate
+   }
+
+   export interface StudioState {
+     jacketColorId: string;
+     front: StudioLayer[]; // max 3 layers
+     back: StudioLayer[];  // max 6 layers
+   }
+   ```
+   *Rule: Multiple copies of the same motif must have distinct UUIDs so they move, resize, recolor, and delete completely independently. Switching front/back view must isolate layer arrays without wiping or cross-pollinating state.*
+
+3. Freeform Pointer Dragging with Zero-Jank:
+   - Handle `pointerdown`, `pointermove`, and `pointerup` on the canvas wrapper using Pointer Capture API (`setPointerCapture`).
+   - Store active `draggingId` in a `useRef` to prevent re-render thrashing during drag gestures.
+   - Apply `touch-action: none` so single-finger dragging on mobile does NOT scroll the viewport.
+   - Clamp coordinates strictly to `3% - 97%` bounds so motifs never clip outside the garment.
+
+4. Dynamic CSS `mask-image` Stencil Thread Recoloring:
+   - Avoid heavy 3D WebGL models or pre-rendering hundreds of color combinations.
+   - Provide single-color silhouette PNGs for motifs.
+   - In `LogoOverlay.tsx`, render motifs using CSS mask-image stencil:
+     ```tsx
+     <div
+       style={{
+         backgroundColor: colorHex,
+         WebkitMaskImage: `url(${logo.path})`,
+         maskImage: `url(${logo.path})`,
+         WebkitMaskRepeat: 'no-repeat',
+         maskRepeat: 'no-repeat',
+         WebkitMaskSize: 'contain',
+         maskSize: 'contain',
+         WebkitMaskPosition: 'center',
+         maskPosition: 'center',
+         filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+       }}
+     />
+     ```
+   - For non-recolorable full-color artwork, fall back to standard `background-image: url(...)`.
+
+5. Studio UI Controls:
+   - Perspective Switcher (FRONT // 表 vs BACK // 裏) with active layer capacity counters.
+   - Garment Base Fabric Selector (e.g. Black / White) with front and back mockup images.
+   - Embroidery Motif Selector with bilingual labels.
+   - Thread Color Swatch Palette with visual hex chips.
+   - Discrete Size Tier Picker (Small / Medium / Large).
+   - In-context Layer Toolbar / Layer List: Select, recolor, resize, and delete active layers.
+   - Direct WhatsApp Quote Order button compiling active garment configuration into a pre-filled WhatsApp message.
+
+---
+
+### MODULE D: E-COMMERCE SHOP CATALOG & SLUG ROUTES (`/shop`, `/shop/[slug]`)
+1. Catalog Page (`app/shop/page.tsx`):
+   - Server Component with Next.js 15 async `searchParams` Promise resolution (`const { category } = await searchParams`).
+   - Category filter bar with URL search query binding (`?category=jackets`).
+   - Manga-panel styled product grid with tactile product cards, badges, prices, and stock indicators.
+2. Product Detail Page (`app/shop/[slug]/page.tsx`):
+   - Product gallery with thumbnail switcher.
+   - Size selector (S, M, L, XL, XXL) and interactive Size Guide Popover modal.
+   - Tactile Add-to-Cart button with instant optimistic feedback.
+   - Fast WhatsApp direct purchase button.
+
+---
+
+### MODULE E: SHOPPING CART & GLOBAL NAVIGATION
+1. Cart Provider (`lib/cart/CartProvider.tsx`):
+   - Context provider wrapping the application in `app/layout.tsx`.
+   - Actions: `addItem`, `removeItem`, `updateQuantity`, `clearCart`, `toggleCart`.
+   - Automatic sync with `localStorage` and hydration-safe mounting.
+   - Slide-over neo-brutalist cart drawer with line-item thumbnail, quantity controls, price calculations, and checkout trigger.
+2. Sticky Header Navbar (`app/components/navigation/Navbar.tsx`):
+   - Brand logo, route links (ARCHIVE, CUSTOM STUDIO, BESPOKE, LORE, CONTACT), cart badge counter.
+   - Collapsible Partner Anime Marquee drawer button.
+   - Mobile hamburger menu drawer with smooth SVG morphing.
+3. Infinite Partner Marquee (`app/components/navigation/AnimeMarquee.tsx`):
+   - Infinite horizontal ticker using `@keyframes marquee` (`translateX(0%)` to `translateX(-50%)`).
+   - Pauses cleanly on hover for accessibility.
+
+--------------------------------------------------------------------------------
+4. FILE STRUCTURE BLUEPRINT
+--------------------------------------------------------------------------------
+Organize the codebase following this exact structure:
+
+```
+├── app/
+│   ├── layout.tsx                     # Root shell, Google fonts, CartProvider, sticky Navbar
+│   ├── globals.css                    # Tailwind CSS v4, marquee keyframes, typography vars
+│   ├── page.tsx                       # 5-Panel Manga Tankobon homepage manuscript
+│   ├── custom-studio/
+│   │   └── page.tsx                   # 2-Mode Custom Studio (Preset Studio & Bespoke Intake)
+│   ├── shop/
+│   │   ├── page.tsx                   # E-commerce catalog with async searchParams filtering
+│   │   └── [slug]/page.tsx            # Product detail page with gallery & size popover
+│   ├── checkout/
+│   │   └── page.tsx                   # Checkout overview & order finalization
+│   └── components/
+│       ├── DynamicGuts.tsx            # Multi-tier low-latency 60-frame Canvas scrubber
+│       ├── CheckoutPanel.tsx          # Panel 03 product centerpiece showcase
+│       ├── CustomizationPanel.tsx     # Panels 04 & 05 diagonal split with polygon clip-path
+│       ├── navigation/
+│       │   ├── Navbar.tsx             # Sticky header with drawer toggles & mobile menu
+│       │   ├── AnimeMarquee.tsx       # Infinite continuous looping franchise ticker
+│       │   └── constants.ts           # Navigation routes & anime logo data
+│       ├── studio/
+│       │   ├── StudioPanel.tsx        # Central orchestrator for front/back multi-layer state
+│       │   ├── StudioPreview.tsx      # Preview container with perspective toggle & toolbar
+│       │   ├── JacketPreview.tsx      # Garment canvas, pointer-capture dragging & clamping
+│       │   ├── LogoOverlay.tsx        # CSS mask-image stencil thread recolorer
+│       │   ├── LayerList.tsx          # Placed layers list with active selection & delete
+│       │   ├── LayerToolbar.tsx       # Floating in-context size/color/trash controls
+│       │   ├── JacketColorPicker.tsx  # Fabric base selector
+│       │   ├── LogoPicker.tsx         # Embroidery motif catalog grid
+│       │   ├── LogoColorPicker.tsx    # Thread color swatch chips
+│       │   ├── LogoSizePicker.tsx     # Discrete size tier buttons
+│       │   └── ViewToggle.tsx         # Front / Back perspective switcher
+│       ├── cart/
+│       │   ├── CartDrawer.tsx         # Slide-over cart drawer with line items
+│       │   ├── CartLineItem.tsx       # Item row with quantity buttons
+│       │   └── AddToCartButton.tsx    # Tactile add-to-cart button
+│       └── shop/
+│           ├── ProductGrid.tsx        # Responsive manga panel product list
+│           ├── ProductCard.tsx        # Individual product card with badges
+│           ├── SizeGuidePopover.tsx   # Interactive measurement popover
+│           └── WhatsAppButton.tsx     # Direct WhatsApp order trigger
+├── lib/
+│   ├── products.ts                    # Product catalog data & category query helpers
+│   ├── types.ts                       # E-commerce product & cart TypeScript models
+│   ├── cart/
+│   │   ├── CartProvider.tsx           # Cart Context & actions
+│   │   └── storage.ts                 # Safe localStorage read/write helpers
+│   └── studio/
+│       ├── types.ts                   # StudioLayer, StudioState, StudioView, Logo models
+│       ├── options.ts                 # Thread palettes, jacket bases, size scales
+│       └── logos.ts                   # Embroidery motif catalogue with mask flags
+└── public/
+    └── images/
+        ├── sequence1/                 # 60 WebP frames for sequence 1 (guts_01.webp - guts_60.webp)
+        ├── sequence2/                 # 60 WebP frames for sequence 2
+        ├── studio/                    # Garment mockups (jacket-black-front, jacket-white-front)
+        └── logos/berserk/             # Transparent motif PNGs for stencil recoloring
+```
+
+--------------------------------------------------------------------------------
+5. CRITICAL EXECUTION & CODE QUALITY RULES
+--------------------------------------------------------------------------------
+1. Next.js 15/16 App Router Compliance:
+   - In Next.js 15+, `searchParams` and `params` in Page components are `Promise` objects. ALWAYS `await searchParams` before accessing properties.
+   - Use `'use client'` at the top of components utilizing React hooks (`useState`, `useEffect`, `useRef`).
+   - Add `suppressHydrationWarning` to `<body>` in `app/layout.tsx` to ensure clean hydration.
+2. Clean Fallbacks for Media Assets:
+   - Never let a missing image crash the app. In `JacketPreview` and image components, attach `onError` handlers to display clean editorial placeholder boxes instructing which asset to place in `public/images/`.
+3. High-Performance Canvas Standards:
+   - Never call `setState` inside high-frequency `pointermove` scrubbers. Use `requestAnimationFrame` and refs.
+   - Cache image objects in `imagesRef.current` to avoid redundant browser GC pauses.
+4. Aesthetics:
+   - Every button must feel tactile and punchy.
+   - All text rendered over background imagery must use multi-layered text-shadows so it stays readable regardless of background brightness.
+   - Ensure the Japanese typography and vertical margins render cleanly on desktop while elegantly collapsing on mobile screens.
+
+Execute this specification completely with full code, zero placeholders, and strict type safety.

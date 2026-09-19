@@ -4,8 +4,8 @@
  * ============================================================================
  * WHAT THIS FILE DOES:
  * Central state orchestrator for the Custom Embroidery Studio.
- * Manages separate front & back customization canvases with independent multi-logo
- * layers (max 3 on FRONT, max 6 on BACK).
+ * Manages separate front & back customization canvases with independent embroidery
+ * layers (max 3 on FRONT, max 3 on BACK).
  *
  * WHY THIS IS A CLIENT COMPONENT:
  * Acts as the SINGLE SOURCE OF TRUTH for:
@@ -14,7 +14,7 @@
  * - Independent layer arrays for front and back perspectives:
  *     Record<StudioView, StudioLayer[]>
  * - Currently selected layer ID on the active view
- * - Pending motif configuration (motif, thread color, size) used when adding a new layer
+ * - Pending motif selection used when adding a new logo layer
  *
  * ARCHITECTURAL RULE — INDEPENDENT LAYERS & MULTIPLE COPIES:
  * Each placed logo is an independent StudioLayer with its own id.
@@ -36,11 +36,12 @@
 import { useState } from 'react';
 import {
   DEFAULT_LAYER_POSITION,
-  LogoColor,
-  LogoSize,
   MAX_LAYERS,
   StudioLayer,
+  StudioLogoLayer,
+  StudioTextLayer,
   StudioView,
+  TextFontId,
 } from '@/lib/studio/types';
 import { JACKET_COLORS, LOGO_COLORS } from '@/lib/studio/options';
 import { LOGOS } from '@/lib/studio/logos';
@@ -48,9 +49,8 @@ import StudioPreview from './StudioPreview';
 import OptionGroup from './OptionGroup';
 import JacketColorPicker from './JacketColorPicker';
 import LogoPicker from './LogoPicker';
-import LogoColorPicker from './LogoColorPicker';
-import LogoSizePicker from './LogoSizePicker';
 import LayerList from './LayerList';
+import TextInputSection from './TextInputSection';
 import WhatsAppButton from '../shop/WhatsAppButton';
 
 // Browser-safe unique ID generator
@@ -70,7 +70,8 @@ export default function StudioPanel() {
 
   // Initial seed layer so the customer sees an embroidery preview immediately on page load
   const initialFrontLayerId = 'init-front-layer-1';
-  const initialFrontLayer: StudioLayer = {
+  const initialFrontLayer: StudioLogoLayer = {
+    type: 'logo',
     id: initialFrontLayerId,
     logoId: LOGOS[0]?.id || 'brand-of-sacrifice',
     colorId: 'crimson',
@@ -91,23 +92,19 @@ export default function StudioPanel() {
     initialFrontLayer.id
   );
 
-  // Default color and size apply to each newly clicked motif.
+  // The selected motif stays highlighted after it is placed.
   const [pendingLogoId, setPendingLogoId] = useState<string>(
     LOGOS[0]?.id || 'brand-of-sacrifice'
   );
-  const [pendingColorId, setPendingColorId] = useState<LogoColor>('crimson');
-  const [pendingSize, setPendingSize] = useState<LogoSize>('medium');
 
   // --------------------------------------------------------------------------
   // DERIVED DATA RESOLUTION
   // --------------------------------------------------------------------------
   const selectedJacket =
     JACKET_COLORS.find((j) => j.id === jacketColorId) || JACKET_COLORS[0];
-  const selectedPendingLogo =
-    LOGOS.find((l) => l.id === pendingLogoId) || LOGOS[0];
-
   const currentLayers = layers[view];
   const currentLimit = MAX_LAYERS[view];
+  const canAddMore = currentLayers.length < currentLimit;
 
   const selectedLayer =
     currentLayers.find((l) => l.id === selectedLayerId) ?? null;
@@ -132,11 +129,13 @@ export default function StudioPanel() {
     if (currentLayers.length >= MAX_LAYERS[view]) return;
     // A fresh ID lets repeated copies of the same motif move and delete independently.
     const newId = generateUUID();
-    const newLayer: StudioLayer = {
+    const newLayer: StudioLogoLayer = {
+      type: 'logo',
       id: newId,
       logoId,
-      colorId: pendingColorId,
-      size: pendingSize,
+      // Defaults are hardcoded — customers fine-tune via the EDITING toolbar.
+      colorId: 'crimson',
+      size: 'medium',
       xPercent: DEFAULT_LAYER_POSITION[view].xPercent,
       yPercent: DEFAULT_LAYER_POSITION[view].yPercent,
     };
@@ -149,6 +148,28 @@ export default function StudioPanel() {
     // Select the new layer so its outline and editing toolbar appear immediately.
     setSelectedLayerId(newId);
   }
+
+  // Add customer text with the same position and editing behavior as a logo.
+  const handleAddText = (text: string, fontId: TextFontId) => {
+    if (!canAddMore) return;
+    const newLayer: StudioTextLayer = {
+      type: 'text',
+      id: generateUUID(),
+      text,
+      fontId,
+      colorId: 'crimson',
+      size: 'medium',
+      xPercent: DEFAULT_LAYER_POSITION[view].xPercent,
+      yPercent: DEFAULT_LAYER_POSITION[view].yPercent,
+    };
+
+    // Preserve the opposite side while appending text to the active side.
+    setLayers((prev) => ({
+      ...prev,
+      [view]: [...prev[view], newLayer],
+    }));
+    setSelectedLayerId(newLayer.id);
+  };
 
   // One updater for every kind of layer edit keeps the code short and consistent.
   const updateLayer = (id: string, patch: Partial<StudioLayer>) => {
@@ -220,9 +241,6 @@ export default function StudioPanel() {
               <div className="font-mono font-bold text-xs text-black uppercase tracking-wider">
                 CLICK A MOTIF TO PLACE IT. DRAG ON THE JACKET TO POSITION.
               </div>
-              <p className="font-mono text-[10px] text-stone-500 uppercase mt-0.5">
-                Customize the pending graphic before stamping it onto the garment.
-              </p>
             </div>
 
             {/* 2. Select Embroidery Motif (places a new layer) */}
@@ -234,24 +252,10 @@ export default function StudioPanel() {
               />
             </OptionGroup>
 
-            {/* 3. Thread Color (sets pendingColorId) */}
-            <OptionGroup label="3. DEFAULT THREAD COLOR // 標準糸色:">
-              <LogoColorPicker
-                value={pendingColorId}
-                onChange={(id) => setPendingColorId(id as LogoColor)}
-                disabled={!selectedPendingLogo.canRecolor}
-              />
-            </OptionGroup>
+            {/* 3. Customer text becomes a fully editable embroidery layer. */}
+            <TextInputSection onAdd={handleAddText} canAdd={canAddMore} />
 
-            {/* 4. Embroidery Size (sets pendingSize) */}
-            <OptionGroup label="4. DEFAULT SIZE // 標準寸法:">
-              <LogoSizePicker
-                value={pendingSize}
-                onChange={setPendingSize}
-              />
-            </OptionGroup>
-
-            {/* 6. Placed Layers on Current Perspective */}
+            {/* Placed layers on the current perspective. */}
             <LayerList
               layers={currentLayers}
               logos={LOGOS}

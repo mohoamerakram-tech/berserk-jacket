@@ -3,7 +3,7 @@
 /**
  * ============================================================================
  * WHAT THIS FILE DOES:
- * Displays the list of embroidery layers placed on the current perspective.
+ * Displays logo and text embroidery layers placed on the current perspective.
  * Allows selecting a layer to activate the editing toolbar, or deleting it.
  *
  * WHY THIS IS A CLIENT COMPONENT:
@@ -16,6 +16,7 @@
 
 import React from 'react';
 import { Logo, LogoColorSwatch, StudioLayer } from '@/lib/studio/types';
+import { TEXT_FONTS } from '@/lib/studio/options';
 
 interface LayerListProps {
   /** Layers placed on the current view */
@@ -49,7 +50,7 @@ export default function LayerList({
       <div className="flex items-center justify-between font-mono text-[11px] font-bold tracking-wider text-black border-b border-stone-300 pb-1">
         <div className="flex items-center gap-1.5">
           <span className="text-[#dc2626]">◆</span>
-          <span>PLACED LOGOS ON THIS SIDE // 配置済みロゴ</span>
+          <span>PLACED ELEMENTS ON THIS SIDE // 配置済み要素</span>
         </div>
         <span className="text-stone-500 font-mono text-[10px]">
           {layers.length} / {max}
@@ -60,16 +61,27 @@ export default function LayerList({
       {layers.length === 0 ? (
         <div className="p-4 border-2 border-dashed border-stone-300 bg-stone-50 text-center">
           <p className="font-mono text-[11px] text-stone-500 uppercase tracking-wider">
-            NO LOGOS YET — PICK A MOTIF AND CLICK ADD // まだロゴがありません
+            NO ELEMENTS YET — PICK A MOTIF OR ADD TEXT // まだ要素がありません
           </p>
         </div>
       ) : (
         <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-0.5">
           {layers.map((layer, index) => {
-            const logo = logos.find((l) => l.id === layer.logoId) || logos[0];
+            // Catalog lookup applies only to logo layers.
+            const logo =
+              layer.type === 'logo'
+                ? logos.find((item) => item.id === layer.logoId) || logos[0]
+                : undefined;
+            const textFont =
+              layer.type === 'text'
+                ? TEXT_FONTS.find((font) => font.id === layer.fontId) ||
+                  TEXT_FONTS[0]
+                : undefined;
             const color =
               colors.find((c) => c.id === layer.colorId) || colors[0];
             const isSelected = selectedLayerId === layer.id;
+            const layerLabel =
+              layer.type === 'text' ? layer.text.toUpperCase() : logo?.label || 'LOGO';
 
             return (
               <div
@@ -98,7 +110,19 @@ export default function LayerList({
 
                   {/* 32x32 Thumbnail */}
                   <div className="w-8 h-8 shrink-0 bg-stone-900 border border-black flex items-center justify-center p-0.5 relative overflow-hidden">
-                    {logo.canRecolor ? (
+                    {layer.type === 'text' ? (
+                      <span
+                        className="max-w-full truncate uppercase leading-none"
+                        style={{
+                          color: color.hex,
+                          fontFamily: textFont?.cssFamily,
+                          fontSize: '8px',
+                          fontWeight: 900,
+                        }}
+                      >
+                        {layer.text}
+                      </span>
+                    ) : logo?.canRecolor ? (
                       <div
                         className="w-full h-full"
                         style={{
@@ -113,7 +137,7 @@ export default function LayerList({
                           maskPosition: 'center',
                         }}
                       />
-                    ) : (
+                    ) : logo ? (
                       <div
                         className="w-full h-full"
                         style={{
@@ -123,13 +147,13 @@ export default function LayerList({
                           backgroundPosition: 'center',
                         }}
                       />
-                    )}
+                    ) : null}
                   </div>
 
                   {/* Details */}
                   <div className="min-w-0">
                     <p className="font-mono font-bold text-xs text-black truncate uppercase leading-tight">
-                      {logo.label}
+                      {layerLabel}
                     </p>
                     <div className="flex items-center gap-2 font-mono text-[10px] text-stone-500 uppercase mt-0.5">
                       <span className="bg-black text-white px-1 py-0.2 text-[9px] font-bold">
@@ -149,7 +173,7 @@ export default function LayerList({
                 {/* Right: Delete Action */}
                 <button
                   type="button"
-                  aria-label={`Remove ${logo.label} from garment`}
+                  aria-label={`Remove ${layerLabel} from garment`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(layer.id);
