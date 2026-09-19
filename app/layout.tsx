@@ -3,6 +3,7 @@ import { Bebas_Neue, Geist, Geist_Mono } from "next/font/google";
 import Navbar from "./components/navigation/Navbar";
 import CartProvider from "@/lib/cart/CartProvider";
 import CartDrawer from "./components/cart/CartDrawer";
+import DomSafeguard from "./components/utils/DomSafeguard";
 import "./globals.css";
 
 // Configure Geist Sans font for modern UI readability
@@ -28,14 +29,18 @@ const bebas = Bebas_Neue({
 export const metadata: Metadata = {
   title: "Berserk Jacket Archive — Official Manga Apparel Experience",
   description: "The official interactive Berserk embroidered jacket experience.",
+  other: {
+    google: "notranslate",
+  },
 };
 
 /**
  * RootLayout: The foundational application shell
- * - Injects Google fonts as CSS variables (--font-geist-sans, --font-geist-mono)
+ * - Injects Google fonts as CSS variables (--font-geist-sans, --font-geist-mono, --font-bebas)
  * - Embeds the global persistent Navbar with anime showcase drawer
  * - Wraps entire component tree with CartProvider for global cart state
  * - Mounts single global CartDrawer at the body root level so it sits above all pages
+ * - Includes translate="no" and DomSafeguard to prevent Chrome auto-translate DOM crashes
  */
 export default function RootLayout({
   children,
@@ -45,9 +50,19 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${bebas.variable} h-full antialiased`}
+      translate="no"
+      className={`notranslate ${geistSans.variable} ${geistMono.variable} ${bebas.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+      <head>
+        {/* Early inline safeguard to prevent DOMException when browser translation extensions wrap text in <font> */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){if(typeof window!=='undefined'&&window.Node){var oR=Node.prototype.removeChild;Node.prototype.removeChild=function(c){if(c.parentNode!==this){return c.parentNode?c.parentNode.removeChild(c):c;}return oR.call(this,c);};var oI=Node.prototype.insertBefore;Node.prototype.insertBefore=function(n,r){if(r&&r.parentNode!==this){return r.parentNode?r.parentNode.insertBefore(n,r):this.appendChild(n);}return oI.call(this,n,r);};}})();`,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col notranslate" translate="no" suppressHydrationWarning>
+        <DomSafeguard />
         {/* Global CartProvider: Provides persistent client-side cart state to entire tree */}
         <CartProvider>
           {/* Global sticky navigation bar */}
@@ -63,3 +78,4 @@ export default function RootLayout({
     </html>
   );
 }
+

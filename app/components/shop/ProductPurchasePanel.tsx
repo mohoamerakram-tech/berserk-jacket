@@ -88,10 +88,13 @@ export default function ProductPurchasePanel({ product }: ProductPurchasePanelPr
         <AddToCartButton product={product} size={selectedSize} />
         
         {/* Visual WhatsApp Order CTA */}
-        <WhatsAppButton />
+        <WhatsAppButton
+          href={`/checkout?productId=${encodeURIComponent(product.id)}&size=${encodeURIComponent(selectedSize || 'L')}`}
+          label="ORDER VIA WHATSAPP"
+        />
 
         <p className="font-mono text-[10px] text-stone-500 text-center uppercase tracking-wider">
-          FREE EXPRESS SHIPPING (CASH ON DELIVERY) ACROSS MOROCCO
+          FAST EXPRESS SHIPPING · PREPAYMENT VIA VIREMENT / CASH PLUS / WAFACASH
         </p>
       </div>
     </div>

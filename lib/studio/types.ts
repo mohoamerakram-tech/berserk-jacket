@@ -116,16 +116,31 @@ export interface StudioTextLayer extends StudioLayerBase {
 export type StudioLayer = StudioLogoLayer | StudioTextLayer;
 
 /**
+ * 2D percentage-based coordinate position on the garment canvas.
+ * Expressed as percentages of canvas width and height (clamped between 3% and 97%).
+ */
+export interface LogoPosition {
+  /** Horizontal anchor center in percent of garment image width (0 to 100) */
+  xPercent: number;
+  /** Vertical anchor center in percent of garment image height (0 to 100) */
+  yPercent: number;
+}
+
+/**
  * Full state snapshot for the custom studio, maintaining independent layer
- * arrays for front and back garment perspectives.
+ * arrays for front and back garment perspectives, active orientation, and selections.
  */
 export interface StudioState {
   /** Garment fabric base ('black' | 'white') */
   jacketColorId: string;
-  /** Placed layers on garment front (max 3) */
-  front: StudioLayer[];
-  /** Placed layers on garment back (max 3) */
-  back: StudioLayer[];
+  /** Active perspective orientation ('front' | 'back') */
+  view: StudioView;
+  /** Placed layers mapped by perspective (isolated front/back arrays) */
+  layers: Record<StudioView, StudioLayer[]>;
+  /** Currently selected layer ID on the active view (null if none selected) */
+  selectedLayerId: string | null;
+  /** Motif ID highlighted in the picker for next placement */
+  pendingLogoId: string;
 }
 
 /**
@@ -143,21 +158,10 @@ export const MAX_LAYERS: Record<StudioView, number> = {
  * Front defaults to chest-left (62% X, 30% Y).
  * Back defaults to mid-upper back centerpiece (50% X, 45% Y).
  */
-export const DEFAULT_LAYER_POSITION: Record<
-  StudioView,
-  { xPercent: number; yPercent: number }
-> = {
+export const DEFAULT_LAYER_POSITION: Record<StudioView, LogoPosition> = {
   front: { xPercent: 62, yPercent: 30 },
   back: { xPercent: 50, yPercent: 45 },
 };
-
-/**
- * Freeform 2D coordinates helper interface.
- */
-export interface LogoPosition {
-  xPercent: number;
-  yPercent: number;
-}
 
 /**
  * Garment base color option with paths to pre-rendered front and back mockup assets.

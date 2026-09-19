@@ -21,6 +21,7 @@
  */
 
 import React from 'react';
+import Link from 'next/link';
 
 /**
  * Lightweight inline SVG representing the official WhatsApp telephone speech-bubble glyph.
@@ -38,22 +39,96 @@ function WhatsAppIcon() {
   );
 }
 
-interface WhatsAppButtonProps {
+export interface WhatsAppButtonProps {
   /** Label text for the button, defaults to "ORDER VIA WHATSAPP" */
   label?: string;
+  /** Explicit link URL (e.g. wa.me link or internal /checkout route) */
+  href?: string;
+  /** Pre-filled text message to send on WhatsApp */
+  message?: string;
+  /** Custom phone number (defaults to NEXT_PUBLIC_WHATSAPP_NUMBER) */
+  phone?: string;
+  /** Optional click handler */
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  /** Link target (e.g. "_blank") */
+  target?: string;
+  /** Link rel attribute (e.g. "noopener noreferrer") */
+  rel?: string;
+  /** Whether the button is disabled */
+  disabled?: boolean;
   /** Optional class names to allow caller to customize width or margins */
   className?: string;
 }
 
 export default function WhatsAppButton({
   label = 'ORDER VIA WHATSAPP',
+  href,
+  message,
+  phone,
+  onClick,
+  target,
+  rel,
+  disabled = false,
   className = '',
 }: WhatsAppButtonProps) {
+  const cleanPhone = (
+    phone ??
+    (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '' : '')
+  ).replace(/[^0-9]/g, '');
+
+  let finalHref = href;
+  if (!finalHref && !disabled) {
+    if (message) {
+      finalHref = cleanPhone
+        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+        : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    } else if (cleanPhone) {
+      finalHref = `https://wa.me/${cleanPhone}`;
+    } else {
+      finalHref = '#';
+    }
+  }
+
+  const isExternal = finalHref && (finalHref.startsWith('https://') || finalHref.startsWith('http://'));
+  const isInternal = finalHref && finalHref.startsWith('/');
+  const finalTarget = target ?? (isExternal ? '_blank' : undefined);
+  const finalRel = rel ?? (isExternal ? 'noopener noreferrer' : undefined);
+
+  const buttonStyle = `w-full bg-[#25D366] text-white font-mono font-bold uppercase text-xs sm:text-sm tracking-widest py-3 px-5 border-2 border-black shadow-[3px_3px_0px_0px_#000000] transition-all flex items-center justify-center gap-2.5 select-none ${
+    disabled
+      ? 'opacity-60 cursor-not-allowed'
+      : 'hover:bg-[#20ba5a] active:bg-[#1da851] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] cursor-pointer'
+  } ${className}`.trim();
+
+  if (isInternal && finalHref && !disabled) {
+    return (
+      <Link
+        href={finalHref}
+        aria-label={label}
+        onClick={onClick}
+        className={buttonStyle}
+      >
+        <WhatsAppIcon />
+        <span>{label}</span>
+      </Link>
+    );
+  }
+
   return (
     <a
-      href="#"
+      href={disabled ? undefined : (finalHref ?? '#')}
+      target={finalTarget}
+      rel={finalRel}
       aria-label={label}
-      className={`w-full bg-[#25D366] hover:bg-[#20ba5a] active:bg-[#1da851] text-white font-mono font-bold uppercase text-xs sm:text-sm tracking-widest py-3 px-5 border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2.5 select-none ${className}`.trim()}
+      aria-disabled={disabled}
+      tabIndex={disabled ? -1 : 0}
+      onClick={(e) => {
+        if (disabled) {
+          e.preventDefault();
+        }
+        onClick?.(e);
+      }}
+      className={buttonStyle}
     >
       <WhatsAppIcon />
       <span>{label}</span>

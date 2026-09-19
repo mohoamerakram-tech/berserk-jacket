@@ -21,18 +21,22 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Logo } from '@/lib/studio/types';
+import { Logo, LOGOS } from '@/lib/studio';
 
 interface LogoPickerProps {
   /** Currently selected logo ID */
   value: string;
   /** Callback triggered when user picks a logo */
   onChange: (id: string) => void;
-  /** Available logo options */
-  logos: Logo[];
+  /** Available logo options (defaults to workshop catalogue LOGOS) */
+  logos?: Logo[];
 }
 
-export default function LogoPicker({ value, onChange, logos }: LogoPickerProps) {
+export default function LogoPicker({
+  value,
+  onChange,
+  logos = LOGOS,
+}: LogoPickerProps) {
   return (
     <div className="border-2 border-black p-2 bg-stone-100 max-h-[280px] overflow-y-auto select-none">
       <div className="grid grid-cols-3 gap-2">

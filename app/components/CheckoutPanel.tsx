@@ -93,7 +93,7 @@ export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPane
             </button>
           ) : (
             <Link
-              href="/shop"
+              href="/checkout?productId=prod-001"
               id="panel3-buy-now-cta"
               className={CTA_BUTTON_CLASSES}
             >

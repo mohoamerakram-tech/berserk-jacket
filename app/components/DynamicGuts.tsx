@@ -402,14 +402,14 @@ export default function DynamicGuts({
       </div>
 
       {/* Sleek Minimal Progress Line at Bottom while background caching remaining frames */}
-      {!allLoaded && (
-        <div 
-          ref={progressBarRef}
-          className="absolute bottom-0 left-0 h-[2px] bg-red-600 z-20 pointer-events-none transition-all duration-100 ease-out"
-          style={{ width: '5%' }}
-          aria-hidden="true"
-        />
-      )}
+      <div 
+        ref={progressBarRef}
+        className={`absolute bottom-0 left-0 h-[2px] bg-red-600 z-20 pointer-events-none transition-opacity duration-300 ease-out ${
+          allLoaded ? 'opacity-0' : 'opacity-100'
+        }`}
+        style={{ width: '5%' }}
+        aria-hidden="true"
+      />
     </div>
   );
 }

@@ -19,7 +19,7 @@
  */
 
 import React from 'react';
-import { JACKET_COLORS } from '@/lib/studio/options';
+import { JACKET_COLORS } from '@/lib/studio';
 
 interface JacketColorPickerProps {
   /** Selected jacket color ID (e.g. "black") */

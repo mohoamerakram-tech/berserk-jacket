@@ -19,8 +19,7 @@
  */
 
 import React from 'react';
-import { Logo, LogoColor, LogoSize, StudioLayer } from '@/lib/studio/types';
-import { LOGO_COLORS, LOGO_SIZES } from '@/lib/studio/options';
+import { Logo, StudioLayer, LOGO_COLORS, LOGO_SIZES } from '@/lib/studio';
 
 interface LayerToolbarProps {
   /** Currently selected layer (null if none selected) */
@@ -50,7 +49,7 @@ export default function LayerToolbar({
   }
 
   const editingLabel =
-    layer.type === 'text' ? `"${layer.text}"` : logo?.label;
+    layer.type === 'text' ? `"${layer.text}"` : (logo?.label ?? 'EMBROIDERY');
   const canRecolor = layer.type === 'text' || Boolean(logo?.canRecolor);
 
   return (
@@ -70,14 +69,15 @@ export default function LayerToolbar({
       {/* Control cluster: Size buttons, Color swatches, and Delete button */}
       <div className="flex flex-wrap items-center gap-2.5">
         {/* Mini Size Selector */}
-        <div className="flex items-center border border-black overflow-hidden">
+        <div className="flex items-center border border-black overflow-hidden" role="group" aria-label="Layer size tier">
           {LOGO_SIZES.map((sizeOpt) => {
             const isSizeActive = layer.size === sizeOpt.id;
             return (
               <button
                 key={sizeOpt.id}
                 type="button"
-                onClick={() => onChange({ size: sizeOpt.id as LogoSize })}
+                aria-pressed={isSizeActive}
+                onClick={() => onChange({ size: sizeOpt.id })}
                 className={`px-2 py-0.5 font-mono text-[10px] font-black uppercase transition-all cursor-pointer ${
                   isSizeActive
                     ? 'bg-black text-white'
@@ -92,7 +92,7 @@ export default function LayerToolbar({
 
         {/* Text and recolorable motifs share the thread color controls. */}
         {canRecolor && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" role="group" aria-label="Thread color">
             {LOGO_COLORS.map((c) => {
               const isColorActive = layer.colorId === c.id;
               return (
@@ -102,7 +102,7 @@ export default function LayerToolbar({
                   title={c.label}
                   aria-label={c.label}
                   aria-pressed={isColorActive}
-                  onClick={() => onChange({ colorId: c.id as LogoColor })}
+                  onClick={() => onChange({ colorId: c.id })}
                   style={{ backgroundColor: c.hex }}
                   className={`w-5 h-5 rounded-full border border-black cursor-pointer transition-transform ${
                     isColorActive

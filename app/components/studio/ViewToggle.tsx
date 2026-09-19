@@ -23,7 +23,7 @@
  */
 
 import React from 'react';
-import { StudioView } from '@/lib/studio/types';
+import { StudioView } from '@/lib/studio';
 
 interface ViewToggleProps {
   /** Active perspective view */

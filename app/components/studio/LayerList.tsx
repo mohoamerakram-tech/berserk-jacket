@@ -15,16 +15,22 @@
  */
 
 import React from 'react';
-import { Logo, LogoColorSwatch, StudioLayer } from '@/lib/studio/types';
-import { TEXT_FONTS } from '@/lib/studio/options';
+import {
+  Logo,
+  LogoColorSwatch,
+  StudioLayer,
+  LOGOS,
+  LOGO_COLORS,
+  TEXT_FONTS,
+} from '@/lib/studio';
 
 interface LayerListProps {
   /** Layers placed on the current view */
   layers: StudioLayer[];
-  /** Motif catalog for thumbnail asset lookup */
-  logos: Logo[];
-  /** Thread palette catalog for color dot lookup */
-  colors: LogoColorSwatch[];
+  /** Motif catalog for thumbnail asset lookup (defaults to LOGOS) */
+  logos?: Logo[];
+  /** Thread palette catalog for color dot lookup (defaults to LOGO_COLORS) */
+  colors?: LogoColorSwatch[];
   /** Currently selected layer ID (if any) */
   selectedLayerId: string | null;
   /** Maximum capacity for current view */
@@ -37,8 +43,8 @@ interface LayerListProps {
 
 export default function LayerList({
   layers,
-  logos,
-  colors,
+  logos = LOGOS,
+  colors = LOGO_COLORS,
   selectedLayerId,
   max,
   onSelect,
@@ -156,7 +162,7 @@ export default function LayerList({
                       {layerLabel}
                     </p>
                     <div className="flex items-center gap-2 font-mono text-[10px] text-stone-500 uppercase mt-0.5">
-                      <span className="bg-black text-white px-1 py-0.2 text-[9px] font-bold">
+                      <span className="bg-black text-white px-1 py-0.5 text-[9px] font-bold">
                         SIZE: {layer.size[0].toUpperCase()}
                       </span>
                       {layer.type === 'logo' && !logo?.canRecolor ? (

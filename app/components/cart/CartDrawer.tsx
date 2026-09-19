@@ -104,11 +104,15 @@ export default function CartDrawer() {
             </div>
 
             <p className="font-mono text-[10px] text-stone-500 uppercase tracking-wider">
-              FINAL TOTAL CONFIRMED ON WHATSAPP. CASH ON DELIVERY AVAILABLE ACROSS MOROCCO.
+              PREPAYMENT REQUIRED (BANK TRANSFER, CASH PLUS, OR WAFACASH) · NO COD
             </p>
 
-            {/* TODO: When the business WhatsApp number is known, this button will build a wa.me link that pre-fills a message listing every cart item (name, size, quantity) and the subtotal. Not wired yet — see WhatsAppButton.tsx for the full TODO. */}
-            <WhatsAppButton label="ORDER VIA WHATSAPP" className="w-full" />
+            <WhatsAppButton
+              label="ORDER VIA WHATSAPP"
+              href="/checkout?source=cart"
+              onClick={closeCart}
+              className="w-full"
+            />
 
             <div className="text-center pt-1">
               <button

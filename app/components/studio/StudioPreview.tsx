@@ -15,8 +15,7 @@
  */
 
 import React from 'react';
-import { JacketColor, StudioLayer, StudioView } from '@/lib/studio/types';
-import { LOGOS } from '@/lib/studio/logos';
+import { JacketColor, StudioLayer, StudioView, LOGOS } from '@/lib/studio';
 import ViewToggle from './ViewToggle';
 import LayerToolbar from './LayerToolbar';
 import JacketPreview from './JacketPreview';

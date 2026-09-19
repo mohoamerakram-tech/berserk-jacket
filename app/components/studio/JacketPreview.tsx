@@ -23,9 +23,15 @@
 
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
-import { JacketColor, MAX_LAYERS, StudioLayer, StudioView } from '@/lib/studio/types';
-import { LOGOS } from '@/lib/studio/logos';
-import { LOGO_COLORS, LOGO_SIZE_SCALE } from '@/lib/studio/options';
+import {
+  JacketColor,
+  MAX_LAYERS,
+  StudioLayer,
+  StudioView,
+  LOGOS,
+  LOGO_COLORS,
+  LOGO_SIZE_SCALE,
+} from '@/lib/studio';
 import LogoOverlay from './LogoOverlay';
 
 interface JacketPreviewProps {
@@ -104,10 +110,16 @@ export default function JacketPreview({
 
   const handleWrapperPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (draggingIdRef.current) {
-      try {
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch {
-        // Safe fallback
+      if (
+        e.target instanceof HTMLElement &&
+        typeof e.target.hasPointerCapture === 'function' &&
+        e.target.hasPointerCapture(e.pointerId)
+      ) {
+        try {
+          e.target.releasePointerCapture(e.pointerId);
+        } catch {
+          // Gracefully handled if browser state already released
+        }
       }
       draggingIdRef.current = null;
     }

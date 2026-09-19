@@ -7,8 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { TextFontId } from '@/lib/studio/types';
-import { TEXT_FONTS } from '@/lib/studio/options';
+import { TextFontId, TEXT_FONTS } from '@/lib/studio';
 
 interface FontPickerProps {
   /** Currently selected embroidery font. */

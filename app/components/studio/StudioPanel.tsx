@@ -34,7 +34,6 @@
  */
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { readStudioDraft, saveStudioDraft } from '@/lib/studio/storage';
 import {
   DEFAULT_LAYER_POSITION,
   MAX_LAYERS,
@@ -43,9 +42,11 @@ import {
   StudioTextLayer,
   StudioView,
   TextFontId,
-} from '@/lib/studio/types';
-import { JACKET_COLORS, LOGO_COLORS } from '@/lib/studio/options';
-import { LOGOS } from '@/lib/studio/logos';
+  JACKET_COLORS,
+  LOGOS,
+  readStudioDraft,
+  saveStudioDraft,
+} from '@/lib/studio';
 import StudioPreview from './StudioPreview';
 import OptionGroup from './OptionGroup';
 import JacketColorPicker from './JacketColorPicker';
@@ -220,6 +221,27 @@ function StudioEditor() {
     setSelectedLayerId(id);
   };
 
+  const studioMessage = [
+    'Hello Stitch! I would like to order a custom jacket from the Preset Studio.',
+    `Garment Base: ${selectedJacket.label}`,
+    ...(['front', 'back'] as const).map((side) => {
+      const sideLayers = layers[side];
+      if (!sideLayers || sideLayers.length === 0) return `${side.toUpperCase()}: No elements`;
+      const details = sideLayers
+        .map((l, idx) => {
+          if (l.type === 'text') {
+            return `  #${idx + 1} Text: "${l.text}" (Size: ${l.size.toUpperCase()}, Color: ${l.colorId})`;
+          }
+          const logo = LOGOS.find((item) => item.id === l.logoId);
+          return `  #${idx + 1} Motif: ${logo?.label ?? l.logoId} (Size: ${l.size.toUpperCase()}, Color: ${l.colorId})`;
+        })
+        .join('\n');
+      return `${side.toUpperCase()} ELEMENTS (${sideLayers.length}/${MAX_LAYERS[side]}):\n${details}`;
+    }),
+    'Estimated Valuation: From 350 DH',
+    'Please confirm production time and order details.',
+  ].join('\n\n');
+
   return (
     <div className="w-full">
       {/* Two-Column Studio Layout */}
@@ -273,7 +295,6 @@ function StudioEditor() {
               <LogoPicker
                 value={pendingLogoId}
                 onChange={handleMotifClick}
-                logos={LOGOS}
               />
             </OptionGroup>
 
@@ -283,8 +304,6 @@ function StudioEditor() {
             {/* Placed layers on the current perspective. */}
             <LayerList
               layers={currentLayers}
-              logos={LOGOS}
-              colors={LOGO_COLORS}
               selectedLayerId={selectedLayerId}
               max={currentLimit}
               onSelect={selectLayer}
@@ -303,7 +322,9 @@ function StudioEditor() {
               </div>
 
               <WhatsAppButton
-                label="REQUEST QUOTE VIA WHATSAPP"
+                label="ORDER VIA WHATSAPP"
+                href="/checkout?source=studio&type=preset"
+                onClick={() => saveStudioDraft({ jacketColorId, view, layers, selectedLayerId, pendingLogoId })}
                 className="w-full"
               />
             </div>

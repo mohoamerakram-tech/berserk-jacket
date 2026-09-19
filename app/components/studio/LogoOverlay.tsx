@@ -16,8 +16,7 @@
  */
 
 import React from 'react';
-import { Logo, StudioLayer } from '@/lib/studio/types';
-import { TEXT_FONTS } from '@/lib/studio/options';
+import { Logo, StudioLayer, TEXT_FONTS } from '@/lib/studio';
 
 interface LogoOverlayProps {
   /** The layer configuration instance (coordinates, size, color) */

@@ -6,8 +6,7 @@
  */
 
 import { useState } from 'react';
-import { TextFontId } from '@/lib/studio/types';
-import { MAX_TEXT_LENGTH } from '@/lib/studio/options';
+import { TextFontId, MAX_TEXT_LENGTH } from '@/lib/studio';
 import FontPicker from './FontPicker';
 import OptionGroup from './OptionGroup';
 
@@ -47,6 +46,12 @@ export default function TextInputSection({
             maxLength={MAX_TEXT_LENGTH}
             value={text}
             onChange={(event) => setText(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                handleAdd();
+              }
+            }}
             placeholder="MAX 16 CHARACTERS // 最大16文字"
             className="min-w-0 flex-1 px-3 py-2.5 font-mono text-xs font-bold uppercase text-black placeholder:text-stone-400 focus:outline-none"
           />
