@@ -27,8 +27,8 @@ const bebas = Bebas_Neue({
 
 // Primary application metadata for SEO and page indexing
 export const metadata: Metadata = {
-  title: "Berserk Jacket Archive — Official Manga Apparel Experience",
-  description: "The official interactive Berserk embroidered jacket experience.",
+  title: "Future Stitch | Embroidered Jackets & Custom Studio",
+  description: "Shop embroidered jackets or create your own design at Future Stitch.",
   other: {
     google: "notranslate",
   },
@@ -78,4 +78,3 @@ export default function RootLayout({
     </html>
   );
 }
-

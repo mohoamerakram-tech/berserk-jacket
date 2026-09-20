@@ -1,169 +1,148 @@
-import React from 'react';
-import DynamicGuts from './components/DynamicGuts';
-import CheckoutPanel from './components/CheckoutPanel';
-import CustomizationPanel from './components/CustomizationPanel';
+import Image from 'next/image';
+import Link from 'next/link';
 
-/**
- * Home Page: Berserk Jacket Archive — Interactive Manga Manuscript Experience
- * 
- * Layout Architecture:
- * 1. Centered Manga Spread:
- *    - Constrained max-width container (max-w-4xl) mimicking an authentic tankobon/magazine two-page spread.
- * 2. Vertical Japanese Margin Asides:
- *    - Left & Right vertical writing mode text ([writing-mode:vertical-rl]) carrying canonical quotes and publisher markers.
- * 3. 5-Panel Manga Layout:
- *    - Row 1: Panel 01 (The Black Swordsman) & Panel 02 (Berserker Armor) with interactive 60-frame scrubbers.
- *    - Row 2: Panel 03 Centerpiece showing front heavy-gauge embroidery with direct purchase CTA.
- *    - Row 3: Panels 04 & 05 dual diagonal split featuring Custom Studio & Bespoke Import.
- * 4. Authentic Editorial Manuscript Elements:
- *    - Header bar with Young Animal serialization badge, chapter 315 citation, reading order indicator, and page number.
- *    - Gutter quote lines between rows with Japanese philosophical lore.
- *    - Publishing footer crediting Hakusensha, Studio Gaga, and Kentaro Miura.
- */
+const panel = 'relative overflow-hidden border-[3px] border-black shadow-[5px_5px_0_0_#111]';
+const eyebrow = 'font-mono text-[10px] font-black uppercase tracking-[0.2em]';
+const action = 'inline-flex min-h-11 items-center justify-between gap-5 border-2 border-black bg-black px-4 py-2 font-mono text-xs font-black uppercase tracking-wide text-white transition-colors hover:bg-[#c91920] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c91920]';
+
 export default function Home() {
   return (
-    <main className="min-h-screen w-full bg-white text-black font-sans py-6 sm:py-10 px-3 sm:px-6 overflow-x-hidden flex justify-center">
-      {/* 
-        Manga Page Spread Container
-        Centered on screen with equal left and right margins
-      */}
-      <div className="w-full max-w-4xl mx-auto flex items-stretch justify-center gap-2 sm:gap-4">
-        
-        {/* =====================================================================
-            LEFT MARGIN: Canonical Berserk Quote (Skull Knight to Guts)
-            「もがき、足掻き、生き延びろ――それが貴様の抗う道だ」
-           ===================================================================== */}
-        <aside 
-          className="hidden sm:flex flex-col items-center justify-between py-6 select-none shrink-0 w-6 text-stone-800"
-          aria-label="Manuscript Left Margin"
-        >
-          <span className="text-[9px] font-mono text-stone-400 [writing-mode:vertical-rl] tracking-widest">
-            ┼ MARGIN ┼
-          </span>
-          <div className="[writing-mode:vertical-rl] text-xs font-serif font-black tracking-[0.2em] leading-none my-auto">
-            もがき、足掻き、生き延びろ――それが貴様の抗う道だ
-          </div>
-          <span className="text-[9px] font-mono text-stone-400 [writing-mode:vertical-rl] tracking-widest">
-            【 髑髏の騎士 】
-          </span>
+    <main className="min-h-screen bg-[#f5f3ee] px-4 py-8 text-black sm:px-6 sm:py-12">
+      <div className="mx-auto flex max-w-[1240px] items-stretch gap-3 lg:gap-5">
+        <aside aria-hidden="true" className="hidden w-5 shrink-0 select-none flex-col items-center justify-between py-7 lg:flex">
+          <span className="font-mono text-[9px] tracking-widest text-stone-400 [writing-mode:vertical-rl]">┼ FUTURE STITCH ┼</span>
+          <span lang="ja" className="my-auto font-serif text-sm font-bold tracking-[0.3em] text-stone-800 [writing-mode:vertical-rl]">物語はここから始まる</span>
+          <span className="font-mono text-[9px] tracking-widest text-[#c91920] [writing-mode:vertical-rl]">【 第一章 】</span>
         </aside>
 
-        {/* =====================================================================
-            MANGA PAGE MANUSCRIPT (Header + 5 Panels + Footer)
-           ===================================================================== */}
-        <div className="flex-1 min-w-0 flex flex-col">
-          
-          {/* Top Manga Header Margin */}
-          <header className="flex items-center justify-between pb-2 mb-3 border-b-2 border-black text-[11px] font-mono tracking-wider text-stone-700 select-none">
-            <div className="flex items-center gap-2">
-              <span className="bg-black text-white font-bold px-1.5 py-0.5 text-[10px]">
-                ヤングアニマル特別連載
-              </span>
-              <span className="font-bold text-black">
-                ベルセルク [ BERSERK ]
-              </span>
-              <span className="text-stone-400 hidden md:inline">|</span>
-              <span className="hidden md:inline">第34巻 第315話 「狂戦士の甲冑」</span>
-            </div>
-            <div className="flex items-center gap-2 text-stone-600 shrink-0">
-              <span className="hidden md:inline">【 読み方向 ◄ 右から左へ 】</span>
-              <span className="font-bold text-black border border-black px-1">P. 042</span>
-            </div>
-          </header>
-
-          {/* ===================================================================
-              ROW 1: TWO PANELS (Interactive 60-Frame Sequence Scrubbers)
-             =================================================================== */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            
-            {/* Panel 1: Sequence 1 (The Black Swordsman, 60 frames) */}
-            <div className="border-[3px] border-black bg-black overflow-hidden shadow-sm">
-              <DynamicGuts
-                sequenceFolder="sequence1"
-                totalFrames={60}
-                label="PANEL 01 // 黒い剣士"
-                className="aspect-[4/3] sm:aspect-square md:aspect-[4/3]"
-              />
-            </div>
-
-            {/* Panel 2: Sequence 2 (The Berserker Armor, 60 frames) */}
-            <div className="border-[3px] border-black bg-black overflow-hidden shadow-sm">
-              <DynamicGuts
-                sequenceFolder="sequence2"
-                totalFrames={60}
-                label="PANEL 02 // 狂戦士の甲冑"
-                className="aspect-[4/3] sm:aspect-square md:aspect-[4/3]"
-              />
-            </div>
+        <div className="min-w-0 flex-1">
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b-[3px] border-black pb-5">
+          <div>
+            <p className={`${eyebrow} mb-2 text-[#c91920]`}>Future Stitch // Home</p>
+            <h1 className="text-4xl font-black uppercase leading-[0.9] tracking-tight sm:text-6xl">
+              Find your next<br />stitch<span className="text-[#c91920]">.</span>
+            </h1>
           </div>
+          <p className="max-w-xs font-mono text-xs leading-relaxed text-stone-600">
+            Explore what is new, pick a finished piece, or make a jacket your own.
+          </p>
+        </header>
 
-          {/* Inter-row Gutter Margin 1 (Clean line + Japanese Lore) */}
-          <div className="my-3 flex items-center gap-2 text-[10px] font-mono text-stone-400 select-none">
-            <span className="shrink-0">┼</span>
-            <div className="flex-1 h-[1px] bg-stone-300"></div>
-            <span className="shrink-0 text-stone-600 font-serif italic text-xs whitespace-nowrap">
-              「人は自らの運命の鎖を断ち切ることができるのか」
-            </span>
-            <div className="flex-1 h-[1px] bg-stone-300"></div>
-            <span className="shrink-0">┼</span>
-          </div>
-
-          {/* ===================================================================
-              ROW 2: PANEL 03 - CHECKOUT & VALUE PROPOSITION CENTERPIECE
-             =================================================================== */}
-          <CheckoutPanel />
-
-          {/* Inter-row Gutter Margin 2 (Clean line + Japanese Lore) */}
-          <div className="my-3 flex items-center gap-2 text-[10px] font-mono text-stone-400 select-none">
-            <span className="shrink-0">┼</span>
-            <div className="flex-1 h-[1px] bg-stone-300"></div>
-            <span className="shrink-0 text-stone-600 font-serif italic text-xs whitespace-nowrap">
-              「血塗られた狂気、目覚める災厄――」
-            </span>
-            <div className="flex-1 h-[1px] bg-stone-300"></div>
-            <span className="shrink-0">┼</span>
-          </div>
-
-          {/* ===================================================================
-              ROW 3: PANEL 04 & PANEL 05 - DIAGONAL SPLIT CUSTOMIZATION PANEL
-             =================================================================== */}
-          <CustomizationPanel />
-
-          {/* Bottom Manga Footer Margin */}
-          <footer className="flex items-center justify-between pt-2.5 mt-3 border-t-2 border-black text-[10px] font-mono text-stone-600 select-none">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-black">白泉社 (HAKUSENSHA)</span>
-              <span>/</span>
-              <span>スタジオ我画 (STUDIO GAGA)</span>
+        <div className="grid gap-5 md:grid-cols-3 md:items-stretch" aria-label="News and offers">
+          <section aria-labelledby="home-news-title" className={`${panel} min-h-[320px] bg-white md:col-span-2`}>
+            <div className="grid h-full sm:grid-cols-[1.1fr_0.9fr]">
+              <div className="relative z-10 flex flex-col items-start justify-between gap-8 p-6 sm:p-8">
+                <div>
+                  <p className={`${eyebrow} mb-5 text-[#c91920]`}>01 / News // Now live</p>
+                  <h2 id="home-news-title" className="max-w-md text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-5xl">
+                    The story starts with Berserk.
+                  </h2>
+                  <p className="mt-5 max-w-sm text-sm leading-relaxed text-stone-700">
+                    Berserk is our first and only collection available right now. Go straight to the full experience and see every piece.
+                  </p>
+                </div>
+                <Link href="/anime/berserk" className={action}>
+                  Explore Berserk <span aria-hidden="true">↗</span>
+                </Link>
+              </div>
+              <div className="relative min-h-[230px] border-t-[3px] border-black bg-black sm:min-h-full sm:border-l-[3px] sm:border-t-0">
+                <Image
+                  src="/images/back-des1.jpg"
+                  alt="Berserk-inspired embroidery on the back of a jacket"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 320px, (min-width: 640px) 40vw, 100vw"
+                  className="object-cover"
+                />
+                <span className="absolute bottom-3 left-3 bg-black px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white">
+                  Chapter 01 // Berserk
+                </span>
+              </div>
             </div>
-            <div className="hidden sm:block font-serif italic text-stone-500 text-[11px]">
-              「夜明けが来るまで、足掻き続けろ」
+          </section>
+
+          <section aria-labelledby="home-offer-title" className={`${panel} flex min-h-[320px] flex-col justify-between bg-[#c91920] p-6 text-white sm:p-8`}>
+            <div>
+              <p className={`${eyebrow} mb-6 text-white/80`}>02 / Offers &amp; promotions</p>
+              <span aria-hidden="true" className="text-6xl leading-none">✳</span>
+              <h2 id="home-offer-title" className="mt-4 text-4xl font-black uppercase leading-[0.95] tracking-tight">
+                Shipping<br />is on us.
+              </h2>
+              <p className="mt-4 max-w-xs font-mono text-xs leading-relaxed text-white/90">
+                Free express shipping is available on the current collection. Find your piece and make it yours.
+              </p>
             </div>
-            <div className="font-bold text-black">
-              三浦建太郎 (KENTARO MIURA)
-            </div>
-          </footer>
+            <Link href="/shop" className="mt-8 inline-flex min-h-11 items-center justify-between gap-4 border-2 border-white bg-white px-4 py-2 font-mono text-xs font-black uppercase text-black transition-colors hover:bg-black hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Shop current pieces <span aria-hidden="true">↗</span>
+            </Link>
+          </section>
         </div>
 
-        {/* =====================================================================
-            RIGHT MARGIN: Young Animal Serialization Tagline
-            「因果の螺旋に抗う、黒い剣士の咆哮――!!」
-           ===================================================================== */}
-        <aside 
-          className="hidden sm:flex flex-col items-center justify-between py-6 select-none shrink-0 w-6 text-stone-800"
-          aria-label="Manuscript Right Margin"
-        >
-          <span className="text-[9px] font-mono text-stone-400 [writing-mode:vertical-rl] tracking-widest">
-            ┼ BERSERK ┼
-          </span>
-          <div className="[writing-mode:vertical-rl] text-xs font-serif font-black tracking-[0.2em] leading-none my-auto">
-            因果の螺旋に抗う、黒い剣士の咆哮――!!
-          </div>
-          <span className="text-[9px] font-mono text-stone-400 [writing-mode:vertical-rl] tracking-widest">
-            【 三浦建太郎 】
-          </span>
-        </aside>
+        <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" aria-label="Ways to shop and create">
+          <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-1">
+            <section aria-labelledby="home-shop-title" className={`${panel} flex min-h-[250px] flex-col justify-between bg-white p-6`}>
+              <div className="absolute -right-10 -top-10 h-44 w-44 rotate-12 border-[18px] border-stone-100" aria-hidden="true" />
+              <div className="relative">
+                <p className={`${eyebrow} mb-4 text-[#c91920]`}>03 / Ready to wear</p>
+                <h2 id="home-shop-title" className="max-w-[12rem] text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">Pick your piece.</h2>
+                <p className="mt-3 max-w-xs text-sm leading-relaxed text-stone-600">Shop finished embroidered jackets from the collection.</p>
+              </div>
+              <Link href="/shop" className={`${action} relative mt-5 self-start`}>
+                Buy existing <span aria-hidden="true">↗</span>
+              </Link>
+            </section>
 
+            <section aria-labelledby="home-custom-title" className={`${panel} flex min-h-[250px] flex-col justify-between bg-[#171717] p-6 text-white`}>
+              <div>
+                <p className={`${eyebrow} mb-4 text-[#f0494d]`}>04 / Custom studio</p>
+                <h2 id="home-custom-title" className="max-w-[14rem] text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">Make it yours.</h2>
+                <p className="mt-3 max-w-xs text-sm leading-relaxed text-stone-300">Place a motif, choose a jacket, and preview your design.</p>
+              </div>
+              <Link href="/custom-studio" className="mt-5 inline-flex min-h-11 items-center justify-between gap-5 self-start border-2 border-white bg-white px-4 py-2 font-mono text-xs font-black uppercase text-black transition-colors hover:bg-[#c91920] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                Open custom studio <span aria-hidden="true">↗</span>
+              </Link>
+            </section>
+          </div>
+
+          <section aria-labelledby="home-import-title" className={`${panel} flex min-h-[520px] flex-col bg-black text-white`}>
+            <div className="relative min-h-[310px] flex-1 overflow-hidden bg-[#1b1b1b]">
+              <Image
+                src="/images/import-custom.jpg"
+                alt="Custom embroidered jacket inspiration"
+                fill
+                sizes="(min-width: 768px) 720px, 100vw"
+                className="object-cover"
+              />
+              <span className="absolute left-4 top-4 border border-white bg-black px-2 py-1 font-mono text-[10px] font-black uppercase tracking-widest">
+                Your artwork / Your jacket
+              </span>
+            </div>
+            <div className="flex flex-col gap-5 border-t-[3px] border-white p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+              <div>
+                <p className={`${eyebrow} mb-3 text-[#f0494d]`}>05 / Import bespoke</p>
+                <h2 id="home-import-title" className="text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">Bring your own art.</h2>
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-stone-300">
+                  Upload artwork for the front or back, position it on the jacket, and preview your idea.
+                </p>
+              </div>
+              <Link href="/custom-studio?tab=import" className="inline-flex min-h-11 shrink-0 items-center justify-between gap-5 border-2 border-white bg-white px-4 py-2 font-mono text-xs font-black uppercase text-black transition-colors hover:bg-[#c91920] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                Import artwork <span aria-hidden="true">↗</span>
+              </Link>
+            </div>
+          </section>
+        </div>
+
+        <footer className="mt-8 flex items-center justify-between border-t-2 border-black pt-3 font-mono text-[10px] font-bold uppercase tracking-widest text-stone-500">
+          <span>Future Stitch // Create your story</span>
+          <span>01 — 05</span>
+        </footer>
+        </div>
+
+        <aside aria-hidden="true" className="hidden w-5 shrink-0 select-none flex-col items-center justify-between py-7 lg:flex">
+          <span className="font-mono text-[9px] tracking-widest text-stone-400 [writing-mode:vertical-rl]">┼ ORIGINAL ┼</span>
+          <span lang="ja" className="my-auto font-serif text-sm font-bold tracking-[0.3em] text-stone-800 [writing-mode:vertical-rl]">一針ずつ、未来を縫う</span>
+          <span className="font-mono text-[9px] tracking-widest text-[#c91920] [writing-mode:vertical-rl]">【 特別仕立て 】</span>
+        </aside>
       </div>
     </main>
   );

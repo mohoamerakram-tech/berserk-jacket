@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ANIME_LOGOS } from './constants';
 
 /**
@@ -24,9 +25,9 @@ export default function AnimeMarquee() {
         {/* CSS .animate-marquee translates 0% -> -50% indefinitely */}
         <div className="animate-marquee flex items-center gap-8 sm:gap-12 whitespace-nowrap">
           {marqueeItems.map((item, index) => (
-            <a
+            <Link
               key={`${item.id}-${index}`}
-              href={item.href || '#'}
+              href={item.href || '/'}
               className="flex items-center gap-3 shrink-0 opacity-85 hover:opacity-100 transition-opacity group px-3 py-1"
             >
               {/* Logo icon container */}
@@ -44,11 +45,10 @@ export default function AnimeMarquee() {
               <span className="text-xs font-mono tracking-wider uppercase text-stone-300 group-hover:text-white">
                 {item.name}
               </span>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
     </div>
   );
 }
-
