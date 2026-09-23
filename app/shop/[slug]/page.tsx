@@ -18,7 +18,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAllProducts, getProductBySlug } from '@/lib/products';
+import { getProductBySlugFromCatalog, getPublicCollections } from '@/lib/catalog/server';
 import ProductGallery from '@/app/components/shop/ProductGallery';
 import ProductPurchasePanel from '@/app/components/shop/ProductPurchasePanel';
 
@@ -32,42 +32,35 @@ interface ProductDetailPageProps {
   }>;
 }
 
-/**
- * Pre-render static pages for every product slug at build time.
- */
-export async function generateStaticParams() {
-  const products = getAllProducts();
-  return products.map((product) => ({
-    slug: product.slug,
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 /**
  * Dynamic metadata for SEO indexing per product.
  */
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlugFromCatalog(slug);
 
   if (!product) {
-    return { title: 'Product Not Found — Berserk Jacket Archive' };
+    return { title: 'Product Not Found — Future Stitch' };
   }
 
   return {
-    title: `${product.name} — Berserk Jacket Archive`,
-    description: product.description,
+    title: product.seoTitle || `${product.name} — Future Stitch`,
+    description: product.seoDescription || product.description,
   };
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   // Await the route params Promise per Next.js 15 App Router conventions
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlugFromCatalog(slug);
 
   // Return 404 page if an invalid slug is requested
   if (!product) {
     notFound();
   }
+  const collection = (await getPublicCollections()).find((item) => item.id === (product.collectionId || 'berserk'));
 
   return (
     <main className="min-h-[calc(100vh-4rem)] w-full bg-white text-black font-sans py-8 sm:py-12 px-4 sm:px-6 flex justify-center">
@@ -76,8 +69,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         {/* Manga Breadcrumb Header */}
         <header className="flex items-center justify-between pb-2 border-b-2 border-black text-[11px] font-mono tracking-wider text-stone-700 select-none">
           <div className="flex items-center gap-2">
-            <Link href="/shop" className="font-bold text-black hover:underline">
-              ◄ SHOP ALL ARTIFACTS
+            <Link href={collection ? `/shop?collection=${encodeURIComponent(collection.slug)}` : '/shop'} className="font-bold text-black hover:underline">
+              ◄ {collection ? `${collection.name.toUpperCase()} COLLECTION` : 'SHOP ALL ARTIFACTS'}
             </Link>
             <span>/</span>
             <span className="text-stone-500 uppercase">{product.category}</span>

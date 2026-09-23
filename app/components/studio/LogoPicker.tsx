@@ -20,7 +20,6 @@
  */
 
 import React from 'react';
-import Image from 'next/image';
 import { Logo, LOGOS } from '@/lib/studio';
 
 interface LogoPickerProps {
@@ -57,12 +56,11 @@ export default function LogoPicker({
             >
               {/* Motif Preview Thumbnail Box */}
               <div className="relative w-full aspect-square mb-1.5 flex items-center justify-center overflow-hidden">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={logo.path}
                   alt={logo.label}
-                  fill
-                  sizes="(max-width: 768px) 33vw, 150px"
-                  className="object-contain p-1 transition-transform group-hover:scale-105"
+                  className="absolute inset-0 h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
                 />
               </div>
 

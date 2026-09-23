@@ -16,7 +16,6 @@
  */
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 
 interface ProductGalleryProps {
   /** List of product image paths (minimum 1) */
@@ -39,13 +38,11 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
     <div className="flex flex-col gap-3">
       {/* 1. Primary Feature Display: High-resolution main image frame */}
       <div className="relative w-full aspect-[4/5] bg-black border-[3px] border-black overflow-hidden select-none">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={activeImage}
           alt={`${alt} - View ${selectedIndex + 1}`}
-          fill
-          priority
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover object-center transition-all duration-200"
+          className="absolute inset-0 h-full w-full object-cover object-center transition-all duration-200"
         />
 
         {/* Manga Panel Index Indicator: Displays current plate number (e.g., IMG 01 / 03) */}
@@ -80,12 +77,11 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
                     : 'border-2 border-black opacity-70 hover:opacity-100'
                 }`}
               >
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={imgSrc}
                   alt={`${alt} thumbnail ${idx + 1}`}
-                  fill
-                  sizes="64px"
-                  className="object-cover object-center"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
                 />
               </button>
             );

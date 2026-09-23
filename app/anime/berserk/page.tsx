@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import DynamicGuts from '@/app/components/DynamicGuts';
 import CheckoutPanel from '@/app/components/CheckoutPanel';
 import CustomizationPanel from '@/app/components/CustomizationPanel';
@@ -76,6 +77,8 @@ export default function BerserkPage() {
             </div>
           </header>
 
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-2 border-black bg-[#f5f3ee] p-2 font-mono text-[10px] font-black uppercase"><span>Berserk collection routes // ベルセルク作品群</span><div className="flex gap-2"><Link href="/shop?collection=berserk" className="bg-black px-3 py-2 text-white hover:bg-[#dc2626]">All products</Link><Link href="/custom-studio?collection=berserk" className="border-2 border-black bg-white px-3 py-1.5 hover:bg-black hover:text-white">Berserk custom</Link></div></div>
+
           {/* ===================================================================
               ROW 1: TWO PANELS (Interactive 60-Frame Sequence Scrubbers)
              =================================================================== */}
@@ -132,7 +135,7 @@ export default function BerserkPage() {
           {/* ===================================================================
               ROW 3: PANEL 04 & PANEL 05 - DIAGONAL SPLIT CUSTOMIZATION PANEL
              =================================================================== */}
-          <CustomizationPanel />
+          <CustomizationPanel collectionSlug="berserk" />
 
           {/* Bottom Manga Footer Margin */}
           <footer className="flex items-center justify-between pt-2.5 mt-3 border-t-2 border-black text-[10px] font-mono text-stone-600 select-none">

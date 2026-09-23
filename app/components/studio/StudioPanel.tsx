@@ -44,6 +44,7 @@ import {
   TextFontId,
   JACKET_COLORS,
   LOGOS,
+  Logo,
   readStudioDraft,
   saveStudioDraft,
 } from '@/lib/studio';
@@ -54,6 +55,7 @@ import LogoPicker from './LogoPicker';
 import LayerList from './LayerList';
 import TextInputSection from './TextInputSection';
 import WhatsAppButton from '../shop/WhatsAppButton';
+import { useCatalog } from '@/lib/catalog/client';
 
 // Browser-safe unique ID generator
 const generateUUID = (): string => {
@@ -67,17 +69,31 @@ const subscribeToHydration = () => () => {};
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
 
-export default function StudioPanel() {
+interface StudioPanelProps { collectionId?: string; collectionName?: string; restrictToCollection?: boolean }
+
+export default function StudioPanel(props: StudioPanelProps) {
   // Mount the editor only after hydration so its first state comes from this
   // tab's session, without flashing or overwriting the saved design with defaults.
   const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot);
-  return hydrated ? <StudioEditor /> : (
+  return hydrated ? <StudioEditor {...props} /> : (
     <div role="status" className="p-12 text-center font-mono text-xs">LOADING STUDIO...</div>
   );
 }
 
-function StudioEditor() {
-  const [draft] = useState(readStudioDraft);
+function StudioEditor({ collectionId, collectionName, restrictToCollection }: StudioPanelProps) {
+  const { logos: catalogLogos } = useCatalog();
+  const allLogos = catalogLogos.length ? catalogLogos : LOGOS;
+  const logos = restrictToCollection
+    ? allLogos.filter((logo) => logo.collectionId === collectionId)
+    : allLogos;
+  if (restrictToCollection && logos.length === 0) {
+    return <div className="border-[3px] border-black bg-stone-950 p-10 text-center text-white shadow-[5px_5px_0_#dc2626]"><p className="font-mono text-[10px] font-black uppercase tracking-widest text-red-400">Motif archive empty // 図案準備中</p><h2 className="mt-3 text-3xl font-black uppercase">No {collectionName || 'collection'} logos yet.</h2><p className="mx-auto mt-3 max-w-lg text-sm text-stone-300">This studio is correctly limited to the selected collection. You can use Import Bespoke for your own artwork, or return when collection motifs are released.</p></div>;
+  }
+  return <StudioEditorWithLogos logos={logos} />;
+}
+
+function StudioEditorWithLogos({ logos }: { logos: Logo[] }) {
+  const [draft] = useState(() => readStudioDraft(logos));
   // --------------------------------------------------------------------------
   // STUDIO STATE (Single Source of Truth)
   // --------------------------------------------------------------------------
@@ -89,7 +105,7 @@ function StudioEditor() {
   const initialFrontLayer: StudioLogoLayer = {
     type: 'logo',
     id: initialFrontLayerId,
-    logoId: LOGOS[0]?.id || 'brand-of-sacrifice',
+    logoId: logos[0]?.id || 'brand-of-sacrifice',
     colorId: 'crimson',
     size: 'medium',
     xPercent: DEFAULT_LAYER_POSITION.front.xPercent,
@@ -110,7 +126,7 @@ function StudioEditor() {
 
   // The selected motif stays highlighted after it is placed.
   const [pendingLogoId, setPendingLogoId] = useState<string>(
-    draft?.pendingLogoId ?? LOGOS[0]?.id ?? 'brand-of-sacrifice'
+    draft?.pendingLogoId ?? logos[0]?.id ?? 'brand-of-sacrifice'
   );
 
   useEffect(() => {
@@ -200,7 +216,7 @@ function StudioEditor() {
           ...layer,
           ...patch,
           // Preserve original artwork colors even if another control sends a color edit.
-          ...(layer.type === 'logo' && !LOGOS.find((logo) => logo.id === layer.logoId)?.canRecolor
+          ...(layer.type === 'logo' && !logos.find((logo) => logo.id === layer.logoId)?.canRecolor
             ? { colorId: layer.colorId } : {}),
         } : layer
       ),
@@ -221,27 +237,6 @@ function StudioEditor() {
     setSelectedLayerId(id);
   };
 
-  const studioMessage = [
-    'Hello Stitch! I would like to order a custom jacket from the Preset Studio.',
-    `Garment Base: ${selectedJacket.label}`,
-    ...(['front', 'back'] as const).map((side) => {
-      const sideLayers = layers[side];
-      if (!sideLayers || sideLayers.length === 0) return `${side.toUpperCase()}: No elements`;
-      const details = sideLayers
-        .map((l, idx) => {
-          if (l.type === 'text') {
-            return `  #${idx + 1} Text: "${l.text}" (Size: ${l.size.toUpperCase()}, Color: ${l.colorId})`;
-          }
-          const logo = LOGOS.find((item) => item.id === l.logoId);
-          return `  #${idx + 1} Motif: ${logo?.label ?? l.logoId} (Size: ${l.size.toUpperCase()}, Color: ${l.colorId})`;
-        })
-        .join('\n');
-      return `${side.toUpperCase()} ELEMENTS (${sideLayers.length}/${MAX_LAYERS[side]}):\n${details}`;
-    }),
-    'Estimated Valuation: From 350 DH',
-    'Please confirm production time and order details.',
-  ].join('\n\n');
-
   return (
     <div className="w-full">
       {/* Two-Column Studio Layout */}
@@ -257,6 +252,7 @@ function StudioEditor() {
             onSelectLayer={selectLayer}
             onChangeLayer={updateLayer}
             onDeleteLayer={removeLayer}
+            logos={logos}
           />
 
           {/* Column 2: Workshop Option Controls, Layer List & Quote CTA */}
@@ -295,6 +291,7 @@ function StudioEditor() {
               <LogoPicker
                 value={pendingLogoId}
                 onChange={handleMotifClick}
+                logos={logos}
               />
             </OptionGroup>
 
@@ -308,6 +305,7 @@ function StudioEditor() {
               max={currentLimit}
               onSelect={selectLayer}
               onDelete={removeLayer}
+              logos={logos}
             />
 
             {/* Estimated Quote & CTA */}

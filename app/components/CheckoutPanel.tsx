@@ -18,6 +18,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCatalog } from '@/lib/catalog/client';
+import { getProductStock } from '@/lib/types';
 
 /**
  * Shared tactile manga CTA button styling.
@@ -34,9 +36,12 @@ interface CheckoutPanelProps {
 }
 
 export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPanelProps) {
+  const { products } = useCatalog();
+  const product = products.find((entry) => entry.id === 'prod-001' || entry.slug === 'berserker-armor-jacket');
+  const soldOut = product ? getProductStock(product) === 0 : false;
   const buttonContent = (
     <>
-      <span>BUY NOW - 300 Dh</span>
+      <span>{soldOut ? 'SOLD OUT' : product ? `BUY NOW - ${product.price} Dh` : 'VIEW AVAILABLE PIECES'}</span>
       <span aria-hidden="true">→</span>
     </>
   );
@@ -86,23 +91,27 @@ export default function CheckoutPanel({ onBuyNow, className = '' }: CheckoutPane
             <button
               type="button"
               onClick={onBuyNow}
+              disabled={soldOut}
               id="panel3-buy-now-cta"
               className={CTA_BUTTON_CLASSES}
             >
               {buttonContent}
             </button>
           ) : (
-            <Link
-              href="/checkout?productId=prod-001"
-              id="panel3-buy-now-cta"
-              className={CTA_BUTTON_CLASSES}
-            >
-              {buttonContent}
-            </Link>
+            soldOut ? (
+              <span id="panel3-buy-now-cta" aria-disabled="true" className={`${CTA_BUTTON_CLASSES} cursor-not-allowed opacity-70`}>{buttonContent}</span>
+            ) : (
+              <Link
+                href={product ? `/checkout?productId=${encodeURIComponent(product.id)}` : '/shop'}
+                id="panel3-buy-now-cta"
+                className={CTA_BUTTON_CLASSES}
+              >
+                {buttonContent}
+              </Link>
+            )
           )}
         </div>
       </div>
     </div>
   );
 }
-

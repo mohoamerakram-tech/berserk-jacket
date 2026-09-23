@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import EmptyState from '@/app/components/ui/EmptyState';
 import { ANIME_LOGOS } from '@/app/components/navigation/constants';
+import { getPublicCollections } from '@/lib/catalog/server';
 
 interface AnimePageProps {
   params: Promise<{
@@ -58,6 +59,7 @@ const ANIME_LORE: Record<string, { kanji: string; quote: string; era: string }> 
 export default async function AnimePage({ params }: AnimePageProps) {
   const { id } = await params;
   const anime = ANIME_LOGOS.find((item) => item.id === id);
+  const collection = (await getPublicCollections()).find((item) => item.animeId === id);
 
   if (!anime) {
     notFound();
@@ -138,15 +140,14 @@ export default async function AnimePage({ params }: AnimePageProps) {
             </div>
           </div>
 
-          {/* EmptyState Component */}
-          <EmptyState
+          {collection ? <section className="border-[3px] border-black bg-[#f5f3ee] p-7 shadow-[5px_5px_0_#dc2626]"><p className="font-mono text-[10px] font-black uppercase tracking-widest text-[#dc2626]">Collection live // 公開中</p><h2 className="mt-3 text-3xl font-black uppercase">Enter the {collection.name} collection.</h2><p className="mt-3 text-sm leading-relaxed text-stone-600">Shop finished pieces or enter a studio filtered to {collection.name} motifs only.</p><div className="mt-6 flex flex-wrap gap-3"><Link href={`/collection/${collection.slug}`} className="border-2 border-black bg-black px-4 py-3 font-mono text-xs font-black uppercase text-white">View collection →</Link><Link href={`/custom-studio?collection=${encodeURIComponent(collection.slug)}`} className="border-2 border-black bg-white px-4 py-3 font-mono text-xs font-black uppercase">Custom studio</Link></div></section> : <EmptyState
             title={`${anime.name} // ARCHIVE SEALED`}
             badge="PRODUCTION PIPELINE // 鋭意制作中"
             loreText={lore.quote}
             description={`The official ${anime.name} heavyweight embroidered capsule collection is currently in development with our master artisans. Pre-orders opening soon.`}
             buttonText="RETURN TO BERSERK ARCHIVE"
             buttonHref="/"
-          />
+          />}
 
           {/* Manga Footer */}
           <footer className="flex items-center justify-between pt-2.5 mt-4 border-t-2 border-black text-[10px] font-mono text-stone-600 select-none">

@@ -30,12 +30,16 @@ interface CustomizationPanelProps {
   onImportDesign?: () => void;
   /** Optional Tailwind class overrides */
   className?: string;
+  collectionSlug?: string;
 }
 export default function CustomizationPanel({
   onTryCustom,
   onImportDesign,
   className = '',
+  collectionSlug,
 }: CustomizationPanelProps) {
+
+  const collectionQuery = collectionSlug ? `&collection=${encodeURIComponent(collectionSlug)}` : '';
 
   return (
     <div
@@ -98,7 +102,7 @@ export default function CustomizationPanel({
               </button>
             ) : (
               <Link
-                href="/custom-studio"
+                href={collectionSlug ? `/custom-studio?collection=${encodeURIComponent(collectionSlug)}` : '/custom-studio'}
                 id="panel4-try-custom-cta"
                 className={CTA_BUTTON_CLASSES}
               >
@@ -164,7 +168,7 @@ export default function CustomizationPanel({
               </button>
             ) : (
               <Link
-                href="/custom-studio?tab=import"
+                href={`/custom-studio?tab=import${collectionQuery}`}
                 id="panel5-import-design-cta"
                 className={CTA_BUTTON_CLASSES}
               >
@@ -203,4 +207,3 @@ export default function CustomizationPanel({
     </div>
   );
 }
-

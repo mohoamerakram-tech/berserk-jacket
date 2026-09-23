@@ -17,9 +17,13 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import StudioPanel from '@/app/components/studio/StudioPanel';
 import BespokeStudio from '@/app/components/studio/BespokeStudio';
+import { useCatalog } from '@/lib/catalog/client';
 
 function CustomStudioContent() {
   const searchParams = useSearchParams();
+  const { collections, loading } = useCatalog();
+  const collectionSlug = searchParams.get('collection');
+  const collection = collectionSlug ? collections.find((item) => item.slug === collectionSlug) : undefined;
   const initialTab = searchParams.get('tab') === 'import' ? 'import' : 'preset';
 
   const [activeTab, setActiveTab] = useState<'preset' | 'import'>(initialTab);
@@ -35,10 +39,12 @@ function CustomStudioContent() {
             CUSTOM STUDIO // 特注刺繍
           </span>
         </div>
-        <Link href="/" className="hover:underline font-bold text-black">
-          ◄ RETURN HOME
+        <Link href={collection ? `/collection/${collection.slug}` : '/'} className="hover:underline font-bold text-black">
+          ◄ {collection ? `RETURN TO ${collection.name.toUpperCase()}` : 'RETURN HOME'}
         </Link>
       </header>
+
+      {collection && <div className="flex flex-wrap items-center justify-between gap-3 border-[3px] border-black bg-[#dc2626] px-4 py-3 text-white"><div><p className="font-mono text-[9px] font-black uppercase tracking-widest">Selected collection // 選択中</p><p className="text-xl font-black uppercase">{collection.name} · {collection.japaneseName}</p></div><Link href="/collection" className="border-2 border-white px-3 py-2 font-mono text-[10px] font-black uppercase hover:bg-white hover:text-black">Change collection</Link></div>}
 
       {/* Mode Switcher Tabs */}
       <div className="grid grid-cols-2 gap-2 border-[3px] border-black bg-stone-100 p-1.5">
@@ -68,7 +74,7 @@ function CustomStudioContent() {
 
       {/* Tab 1: Interactive Preset Studio */}
       <div key="preset-studio-container" className={activeTab === 'preset' ? 'block' : 'hidden'}>
-        <StudioPanel />
+        {collectionSlug && loading ? <div className="p-12 text-center font-mono text-xs">LOADING COLLECTION MOTIFS...</div> : <StudioPanel collectionId={collection?.id} collectionName={collection?.name} restrictToCollection={Boolean(collectionSlug)} />}
       </div>
 
       {/* Tab 2: Bespoke Import Studio (keeps uploaded artwork alive across tab switches) */}

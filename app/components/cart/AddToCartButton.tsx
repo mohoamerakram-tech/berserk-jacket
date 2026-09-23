@@ -16,7 +16,7 @@
  */
 
 import React from 'react';
-import { Product } from '@/lib/types';
+import { getProductStock, isProductSizeAvailable, Product } from '@/lib/types';
 import { useCart } from '@/lib/cart/CartProvider';
 
 interface AddToCartButtonProps {
@@ -29,13 +29,13 @@ export default function AddToCartButton({ product, size }: AddToCartButtonProps)
 
   // Handle addition: dispatches item to context and opens drawer for immediate visual confirmation
   const handleAddToCart = () => {
-    if (!size || !product.inStock) return;
+    if (!size || !isProductSizeAvailable(product, size)) return;
     addItem(product, size);
     openCart();
   };
 
   // Branch 1: Out of Stock Guard
-  if (!product.inStock) {
+  if (!product.inStock || getProductStock(product) <= 0) {
     return (
       <button
         type="button"

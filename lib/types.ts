@@ -19,6 +19,22 @@
  */
 export type ProductCategory = 'jacket' | 'hoodie' | 'tee' | 'accessory';
 
+export interface Collection {
+  id: string;
+  slug: string;
+  animeId: string;
+  name: string;
+  japaneseName: string;
+  description: string;
+  tagline?: string;
+  heroImage: string;
+  logoImage?: string;
+  status: 'active' | 'upcoming' | 'draft';
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 /**
  * Core product interface representing a single embroidered garment or artifact.
  */
@@ -56,6 +72,51 @@ export interface Product {
   inStock: boolean;
   /** Available sizing options */
   sizes: string[];
+  /** Merchant-facing stock keeping unit. */
+  sku?: string;
+  /** Controls whether a product is visible in the public catalogue. */
+  status?: 'active' | 'draft';
+  /** Total sellable units. Kept in sync with inventoryBySize by admin writes. */
+  stockQuantity?: number;
+  /** Per-size stock levels. A zero value disables that size for customers. */
+  inventoryBySize?: Record<string, number>;
+  /** Optional original price shown when the item is discounted. */
+  compareAtPrice?: number;
+  /** Internal production cost; never rendered in the public store. */
+  costPrice?: number;
+  shortDescription?: string;
+  materials?: string;
+  embroideryDetails?: string;
+  fit?: string;
+  careInstructions?: string;
+  shippingNote?: string;
+  color?: string;
+  weightGrams?: number;
+  tags?: string[];
+  featured?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  /** Collection relationship used for storefront and studio routing. */
+  collectionId?: string;
+  /** Merchant-controlled sales total used to choose each collection's home bestseller. */
+  salesCount?: number;
+}
+
+/** Returns the current total inventory while supporting the original seed data. */
+export function getProductStock(product: Product): number {
+  if (product.inventoryBySize) {
+    return Object.values(product.inventoryBySize).reduce((total, quantity) => total + Math.max(0, quantity), 0);
+  }
+  if (typeof product.stockQuantity === 'number') return Math.max(0, product.stockQuantity);
+  return product.inStock ? Number.MAX_SAFE_INTEGER : 0;
+}
+
+export function isProductSizeAvailable(product: Product, size: string): boolean {
+  if (!product.inStock || getProductStock(product) <= 0) return false;
+  if (!product.inventoryBySize) return product.sizes.includes(size);
+  return (product.inventoryBySize[size] ?? 0) > 0;
 }
 
 /**

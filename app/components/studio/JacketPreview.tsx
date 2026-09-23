@@ -28,7 +28,7 @@ import {
   MAX_LAYERS,
   StudioLayer,
   StudioView,
-  LOGOS,
+  Logo,
   LOGO_COLORS,
   LOGO_SIZE_SCALE,
 } from '@/lib/studio';
@@ -47,6 +47,7 @@ interface JacketPreviewProps {
   onSelectLayer: (id: string) => void;
   /** Callback when a layer property (e.g. coordinates) changes */
   onChangeLayer: (id: string, patch: Partial<StudioLayer>) => void;
+  logos: Logo[];
 }
 
 export default function JacketPreview({
@@ -56,6 +57,7 @@ export default function JacketPreview({
   selectedLayerId,
   onSelectLayer,
   onChangeLayer,
+  logos,
 }: JacketPreviewProps) {
   // Determine the active mockup path based on current front/back orientation
   const activeImagePath = view === 'front' ? jacket.frontImage : jacket.backImage;
@@ -207,7 +209,7 @@ export default function JacketPreview({
         // Text layers skip the logo catalog entirely.
         const logo =
           layer.type === 'logo'
-            ? LOGOS.find((item) => item.id === layer.logoId) || LOGOS[0]
+            ? logos.find((item) => item.id === layer.logoId) || logos[0]
             : undefined;
         const colorSwatch =
           LOGO_COLORS.find((c) => c.id === layer.colorId) || LOGO_COLORS[0];

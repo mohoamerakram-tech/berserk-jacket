@@ -28,7 +28,10 @@ import { Product, ProductCategory, CategoryOption } from './types';
  */
 export const CATEGORIES: CategoryOption[] = [
   { value: 'all', label: 'All Artifacts', japaneseLabel: '全て' },
+  { value: 'jacket', label: 'Jackets', japaneseLabel: 'ジャケット' },
   { value: 'hoodie', label: 'Hoodies', japaneseLabel: 'パーカー' },
+  { value: 'tee', label: 'Tees', japaneseLabel: 'シャツ' },
+  { value: 'accessory', label: 'Accessories', japaneseLabel: '小物' },
 ];
 
 /**
@@ -45,6 +48,8 @@ export const PRODUCTS: Product[] = [
     name: 'Berserker Armor Heavyweight Hoodie',
     japaneseName: '狂戦士の甲冑パーカー',
     category: 'hoodie',
+    collectionId: 'berserk',
+    salesCount: 126,
     price: 300,
     image: '/images/front-designe-new.jpg',
     images: [
@@ -64,6 +69,8 @@ export const PRODUCTS: Product[] = [
     name: 'Brand of Sacrifice Heavyweight Hoodie',
     japaneseName: '生贄の烙印パーカー',
     category: 'hoodie',
+    collectionId: 'berserk',
+    salesCount: 84,
     price: 350,
     image: '/images/import-custom.jpg',
     images: [
@@ -83,6 +90,8 @@ export const PRODUCTS: Product[] = [
     name: 'Beast of Darkness Armored Hoodie',
     japaneseName: '闇の獣鎧パーカー',
     category: 'hoodie',
+    collectionId: 'berserk',
+    salesCount: 51,
     price: 380,
     image: '/images/sequence2/guts_01.webp',
     images: [
@@ -101,10 +110,12 @@ export const PRODUCTS: Product[] = [
     name: 'Dragonslayer Heavyweight Pullover Hoodie',
     japaneseName: 'ドラゴンころしパーカー',
     category: 'hoodie',
+    collectionId: 'berserk',
+    salesCount: 37,
     price: 420,
-    image: '/images/front-designe.jpg',
+    image: '/images/front-designe-new.jpg',
     images: [
-      '/images/front-designe.jpg',
+      '/images/front-designe-new.jpg',
       '/images/back-des1.jpg',
       '/images/import-custom.jpg',
     ],
@@ -120,6 +131,8 @@ export const PRODUCTS: Product[] = [
     name: 'Eclipse Tapestry Heavy-Gauge Hoodie',
     japaneseName: '蝕の生贄刺繍パーカー',
     category: 'hoodie',
+    collectionId: 'berserk',
+    salesCount: 29,
     price: 480,
     image: '/images/back-des1.jpg',
     images: [
@@ -139,6 +152,8 @@ export const PRODUCTS: Product[] = [
     name: 'Skull Knight Archival Sigil Hoodie',
     japaneseName: '髑髏の騎士紋章パーカー',
     category: 'hoodie',
+    collectionId: 'berserk',
+    salesCount: 18,
     price: 550,
     image: '/images/import-custom.jpg',
     images: [

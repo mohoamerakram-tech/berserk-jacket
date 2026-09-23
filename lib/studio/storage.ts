@@ -17,7 +17,7 @@
 
 import { LOGOS } from './logos';
 import { JACKET_COLORS, LOGO_COLORS, LOGO_SIZES, TEXT_FONTS } from './options';
-import { MAX_LAYERS, StudioLayer, StudioState } from './types';
+import { Logo, MAX_LAYERS, StudioLayer, StudioState } from './types';
 
 /** Session storage key namespace for studio draft state */
 export const STUDIO_SESSION_KEY = 'future-stitch:studio:v1';
@@ -33,7 +33,7 @@ export type StudioDraft = StudioState;
  * Validates layer ID, registered thread colors, registered size tiers, clamped
  * coordinates (0–100%), and registered motif or validated text.
  */
-function isLayer(value: unknown): value is StudioLayer {
+function isLayer(value: unknown, logos: Logo[]): value is StudioLayer {
   if (!value || typeof value !== 'object') return false;
   const layer = value as Record<string, unknown>;
 
@@ -53,7 +53,7 @@ function isLayer(value: unknown): value is StudioLayer {
   if (!hasValidBase) return false;
 
   if (layer.type === 'logo') {
-    return LOGOS.some((logo) => logo.id === layer.logoId);
+    return logos.some((logo) => logo.id === layer.logoId);
   }
 
   if (layer.type === 'text') {
@@ -72,7 +72,7 @@ function isLayer(value: unknown): value is StudioLayer {
  * Reads and validates the studio draft from sessionStorage.
  * Returns null if no draft exists, if parsing fails, or if data violates domain rules.
  */
-export function readStudioDraft(): StudioDraft | null {
+export function readStudioDraft(logos: Logo[] = LOGOS): StudioDraft | null {
   if (typeof window === 'undefined') return null;
 
   try {
@@ -84,7 +84,7 @@ export function readStudioDraft(): StudioDraft | null {
       !draft ||
       !JACKET_COLORS.some((color) => color.id === draft.jacketColorId) ||
       !['front', 'back'].includes(draft.view) ||
-      !LOGOS.some((logo) => logo.id === draft.pendingLogoId) ||
+      !logos.some((logo) => logo.id === draft.pendingLogoId) ||
       !(draft.selectedLayerId === null || typeof draft.selectedLayerId === 'string') ||
       !draft.layers
     ) {
@@ -97,7 +97,7 @@ export function readStudioDraft(): StudioDraft | null {
       if (
         !Array.isArray(layers) ||
         layers.length > MAX_LAYERS[side] ||
-        !layers.every(isLayer) ||
+        !layers.every((layer: unknown) => isLayer(layer, logos)) ||
         new Set(layers.map((layer) => layer.id)).size !== layers.length
       ) {
         return null;

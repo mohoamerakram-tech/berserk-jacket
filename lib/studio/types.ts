@@ -197,6 +197,16 @@ export interface Logo {
    * If false (e.g. multi-color artwork or photo), color swatches are disabled.
    */
   canRecolor: boolean;
+  /** Hidden motifs remain available to old saved drafts but are not shown in the picker. */
+  active?: boolean;
+  /** Optional grouping label for future anime collections. */
+  collection?: string;
+  /** Stable relation to a managed collection. */
+  collectionId?: string;
+  /** Stable merchant-controlled ordering in the picker. */
+  sortOrder?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**

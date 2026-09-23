@@ -15,8 +15,9 @@
  */
 
 import React from 'react';
+import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getProductsByCategory } from '@/lib/products';
+import { getPublicCollections, getPublicProducts } from '@/lib/catalog/server';
 import { ProductCategory } from '@/lib/types';
 import ShopHeader from '@/app/components/shop/ShopHeader';
 import ShopMargins from '@/app/components/shop/ShopMargins';
@@ -28,6 +29,8 @@ export const metadata: Metadata = {
   description: 'Browse authentic heavy-gauge embroidered jackets, hoodies, tees, and accessories.',
 };
 
+export const dynamic = 'force-dynamic';
+
 interface ShopPageProps {
   /**
    * IMPORTANT FOR NEXT.JS 15:
@@ -35,16 +38,22 @@ interface ShopPageProps {
    */
   searchParams: Promise<{
     category?: string;
+    collection?: string;
   }>;
 }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   // Await the searchParams Promise per Next.js 15 App Router requirements
   const resolvedParams = await searchParams;
-  const activeCategory = (resolvedParams?.category as ProductCategory) || 'all';
+  const activeCategory = (resolvedParams?.category as ProductCategory | 'all') || 'all';
 
   // Retrieve products matching the requested category
-  const products = getProductsByCategory(activeCategory);
+  const [catalog, collections] = await Promise.all([getPublicProducts(), getPublicCollections()]);
+  const activeCollection = collections.find((collection) => collection.slug === resolvedParams.collection);
+  const collectionProducts = activeCollection ? catalog.filter((product) => (product.collectionId || 'berserk') === activeCollection.id) : catalog;
+  const products = activeCategory === 'all'
+    ? collectionProducts
+    : collectionProducts.filter((product) => product.category === activeCategory);
 
   return (
     <main className="min-h-[calc(100vh-4rem)] w-full bg-white text-black font-sans py-6 sm:py-10 px-3 sm:px-6 overflow-x-hidden flex justify-center">
@@ -58,6 +67,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <div className="flex-1 min-w-0 flex flex-col">
           {/* Manga Manuscript Top Bar */}
           <ShopHeader totalCount={products.length} />
+
+          {activeCollection && <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-[3px] border-black bg-[#dc2626] px-4 py-3 text-white"><div><p className="font-mono text-[9px] font-black uppercase tracking-widest">Filtered collection // 作品選択</p><p className="text-xl font-black uppercase">{activeCollection.name} · {activeCollection.japaneseName}</p></div><Link href="/collection" className="border-2 border-white px-3 py-2 font-mono text-[10px] font-black uppercase hover:bg-white hover:text-black">Change collection</Link></div>}
 
           {/* Interactive URL-Driven Category Filter Bar */}
           <CategoryFilter />

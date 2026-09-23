@@ -1,11 +1,22 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { getPublicCollections, getPublicProducts } from '@/lib/catalog/server';
 
 const panel = 'relative overflow-hidden border-[3px] border-black shadow-[5px_5px_0_0_#111]';
 const eyebrow = 'font-mono text-[10px] font-black uppercase tracking-[0.2em]';
 const action = 'inline-flex min-h-11 items-center justify-between gap-5 border-2 border-black bg-black px-4 py-2 font-mono text-xs font-black uppercase tracking-wide text-white transition-colors hover:bg-[#c91920] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c91920]';
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const [collections, products] = await Promise.all([getPublicCollections(), getPublicProducts()]);
+  const leadCollection = collections[0];
+  const collectionBestSellers = collections.flatMap((collection) => {
+    const product = products
+      .filter((entry) => (entry.collectionId || 'berserk') === collection.id)
+      .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))[0];
+    return product ? [{ collection, product }] : [];
+  });
   return (
     <main className="min-h-screen bg-[#f5f3ee] px-4 py-8 text-black sm:px-6 sm:py-12">
       <div className="mx-auto flex max-w-[1240px] items-stretch gap-3 lg:gap-5">
@@ -35,27 +46,21 @@ export default function Home() {
                 <div>
                   <p className={`${eyebrow} mb-5 text-[#c91920]`}>01 / News // Now live</p>
                   <h2 id="home-news-title" className="max-w-md text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-5xl">
-                    The story starts with Berserk.
+                    {collections.length <= 1 ? `The story starts with ${leadCollection?.name || 'you'}.` : `${collections.length} story worlds are now live.`}
                   </h2>
                   <p className="mt-5 max-w-sm text-sm leading-relaxed text-stone-700">
-                    Berserk is our first and only collection available right now. Go straight to the full experience and see every piece.
+                    {collections.length <= 1 ? `${leadCollection?.name || 'Our first collection'} is the first collection available right now. Go straight to the full experience and see every piece.` : 'Choose an anime collection to keep its finished products and exclusive custom motifs together.'}
                   </p>
                 </div>
-                <Link href="/anime/berserk" className={action}>
-                  Explore Berserk <span aria-hidden="true">↗</span>
+                <Link href={leadCollection ? `/collection/${leadCollection.slug}` : '/collection'} className={action}>
+                  {collections.length <= 1 && leadCollection ? `Explore ${leadCollection.name}` : 'Browse collections'} <span aria-hidden="true">↗</span>
                 </Link>
               </div>
               <div className="relative min-h-[230px] border-t-[3px] border-black bg-black sm:min-h-full sm:border-l-[3px] sm:border-t-0">
-                <Image
-                  src="/images/back-des1.jpg"
-                  alt="Berserk-inspired embroidery on the back of a jacket"
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 320px, (min-width: 640px) 40vw, 100vw"
-                  className="object-cover"
-                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={leadCollection?.heroImage || '/images/back-des1.jpg'} alt={leadCollection ? `${leadCollection.name} collection` : 'Future Stitch collection'} className="absolute inset-0 h-full w-full object-cover" />
                 <span className="absolute bottom-3 left-3 bg-black px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white">
-                  Chapter 01 // Berserk
+                  Chapter 01{' // '}{leadCollection?.name || 'Future Stitch'}
                 </span>
               </div>
             </div>
@@ -69,7 +74,7 @@ export default function Home() {
                 Shipping<br />is on us.
               </h2>
               <p className="mt-4 max-w-xs font-mono text-xs leading-relaxed text-white/90">
-                Free express shipping is available on the current collection. Find your piece and make it yours.
+                Free express shipping is available across active collections. Find your piece and make it yours.
               </p>
             </div>
             <Link href="/shop" className="mt-8 inline-flex min-h-11 items-center justify-between gap-4 border-2 border-white bg-white px-4 py-2 font-mono text-xs font-black uppercase text-black transition-colors hover:bg-black hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
@@ -85,10 +90,11 @@ export default function Home() {
               <div className="relative">
                 <p className={`${eyebrow} mb-4 text-[#c91920]`}>03 / Ready to wear</p>
                 <h2 id="home-shop-title" className="max-w-[12rem] text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">Pick your piece.</h2>
-                <p className="mt-3 max-w-xs text-sm leading-relaxed text-stone-600">Shop finished embroidered jackets from the collection.</p>
+                <p className="mt-3 max-w-xs text-sm leading-relaxed text-stone-600">The most-bought finished piece from every active collection.</p>
+                <div className="mt-5 space-y-2">{collectionBestSellers.map(({ collection, product }) => <Link key={collection.id} href={`/shop/${product.slug}`} className="flex items-center justify-between gap-3 border-2 border-black bg-[#f5f3ee] p-2 transition hover:bg-black hover:text-white"><span><strong className="block font-mono text-[9px] uppercase text-[#c91920]">{collection.name} bestseller</strong><span className="block text-xs font-black uppercase leading-tight">{product.name}</span></span><span className="shrink-0 font-mono text-xs font-black">{product.price} DH</span></Link>)}</div>
               </div>
               <Link href="/shop" className={`${action} relative mt-5 self-start`}>
-                Buy existing <span aria-hidden="true">↗</span>
+                View all products <span aria-hidden="true">↗</span>
               </Link>
             </section>
 

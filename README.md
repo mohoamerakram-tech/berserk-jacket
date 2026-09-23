@@ -24,6 +24,69 @@ No API key or background-removal URL is required. Optional `.env.local` settings
 npm run dev
 ```
 
+## Single-administrator catalogue
+
+Customer accounts remain disabled. The private routes are:
+
+- `/admin/login` — single administrator login
+- `/admin` — inventory overview
+- `/admin/collections` and `/admin/collections/new` — anime collection routing and artwork
+- `/admin/products` and `/admin/products/new` — constructed-product catalogue
+- `/admin/logos` and `/admin/logos/new` — custom-studio motif catalogue
+
+Collections are the parent record for products and studio motifs. Assign every product
+and logo to one collection. The built-in anime-bar worlds are seeded automatically:
+Berserk is active, while Bleach, Death Note, Dragon Ball, Hunter × Hunter, Naruto,
+One Piece, and Chi start as upcoming. Active and upcoming collections appear on
+`/collection`; upcoming cards lead to their sealed anime preview page. Change a collection
+to active in the admin when its products and motifs are ready, and its anime-bar page will
+then lead customers to the collection’s products and filtered custom studio.
+`salesCount` on products controls the one bestseller shown for each active collection
+on the home page. Built-in anime-bar collections can be hidden as drafts but cannot be
+deleted. Other collections cannot be deleted until their products and logos are moved or
+removed, preventing broken customer routes.
+
+Create local-only credentials in `.env.local` (the file is already ignored by Git):
+
+```dotenv
+ADMIN_EMAIL=you@example.com
+# Next expands unescaped `$` in .env files, so the separators must be `\$` locally.
+# Decoded format: scrypt$<random-salt-hex>$<64-byte-scrypt-hash-hex>
+ADMIN_PASSWORD_HASH=scrypt\$RANDOM_SALT_HEX\$SCRYPT_HASH_HEX
+# At least 32 random characters. Use a different value in production.
+ADMIN_SESSION_SECRET=...
+# Optional: only set this when your host overwrites the named header.
+# ADMIN_CLIENT_IP_HEADER=x-real-ip
+```
+
+The session is signed server-side, lasts eight hours, and is stored in an HttpOnly,
+SameSite=Strict cookie (Secure in production). Every catalogue mutation verifies both
+the session and same-origin request. The login is rate-limited as an additional guard;
+configure platform-level rate limiting in production because memory limits are per instance.
+
+During local development, catalogue changes are written to `data/admin-catalog.json`
+and images to `public/uploads/catalog/`. These paths are ignored and must not be used as
+production storage on serverless hosting.
+
+For production, create a free Supabase project, run [`supabase/catalog.sql`](supabase/catalog.sql)
+in its SQL editor, and add these server-only environment variables to the host:
+
+```dotenv
+SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SERVICE_ROLE_KEY
+ADMIN_EMAIL=you@example.com
+# In a hosting dashboard, enter the raw value with `$` separators (no backslashes).
+ADMIN_PASSWORD_HASH=scrypt$RANDOM_SALT_HEX$SCRYPT_HASH_HEX
+ADMIN_SESSION_SECRET=...
+```
+
+Never prefix the service-role key or admin secrets with `NEXT_PUBLIC_`. The database table
+uses row-level security with no browser policies; only the authenticated Next.js server routes
+can mutate catalogue data. Product images and logo assets are validated as PNG/JPG/WebP and
+limited to 10 MiB before upload.
+Run the SQL file again after upgrading an older installation; its `add column if not exists`
+migration adds collection storage without deleting existing products or logos.
+
 Open `/custom-studio?tab=import` on the port printed by Next.js. Upload a PNG or JPG under 10 MiB. Wait for processing, drag the artwork, adjust sliders, then order via WhatsApp. Set the real NEXT_PUBLIC_WHATSAPP_NUMBER and restart development / rebuild production to enable ordering. The link pre-fills both sides’ filenames and placement details; customers attach artwork manually in WhatsApp. On failure the previous successful artwork stays available. SVG/AI files receive a specific friendly message; export them as PNG first. The browser file chooser filters to PNG/JPG; server validation still rejects unsupported uploads.
 
 ```sh

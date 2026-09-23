@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ANIME_LOGOS } from './constants';
+import { useCatalog } from '@/lib/catalog/client';
 
 /**
  * AnimeMarquee: Infinite sliding horizontal showcase of partner anime logos
@@ -12,8 +12,18 @@ import { ANIME_LOGOS } from './constants';
  * - Pauses scrolling on mouse hover for interactive accessibility.
  */
 export default function AnimeMarquee() {
+  const { collections } = useCatalog();
   // 2x duplicated array ensures continuous infinite CSS translation
-  const marqueeItems = [...ANIME_LOGOS, ...ANIME_LOGOS];
+  const items = ANIME_LOGOS.map((anime) => {
+    const collection = collections.find((entry) => entry.animeId === anime.id);
+    return {
+      ...anime,
+      logo: collection?.logoImage || anime.logo,
+      href: anime.href,
+      live: Boolean(collection),
+    };
+  });
+  const marqueeItems = [...items, ...items];
 
   return (
     <div 
@@ -32,11 +42,10 @@ export default function AnimeMarquee() {
             >
               {/* Logo icon container */}
               <div className="relative h-8 sm:h-10 w-24 sm:w-28 flex items-center justify-center">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={item.logo}
                   alt={`${item.name} Logo`}
-                  width={112}
-                  height={40}
                   className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-200"
                 />
               </div>
@@ -44,6 +53,7 @@ export default function AnimeMarquee() {
               {/* Series title */}
               <span className="text-xs font-mono tracking-wider uppercase text-stone-300 group-hover:text-white">
                 {item.name}
+                {item.live && <span className="ml-2 text-[8px] text-red-400">LIVE</span>}
               </span>
             </Link>
           ))}

@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { JacketColor, StudioLayer, StudioView, LOGOS } from '@/lib/studio';
+import { JacketColor, Logo, StudioLayer, StudioView } from '@/lib/studio';
 import ViewToggle from './ViewToggle';
 import LayerToolbar from './LayerToolbar';
 import JacketPreview from './JacketPreview';
@@ -39,6 +39,7 @@ interface StudioPreviewProps {
   onChangeLayer: (id: string, patch: Partial<StudioLayer>) => void;
   /** Callback when user deletes a layer */
   onDeleteLayer: (id: string) => void;
+  logos: Logo[];
 }
 
 export default function StudioPreview({
@@ -51,10 +52,11 @@ export default function StudioPreview({
   onSelectLayer,
   onChangeLayer,
   onDeleteLayer,
+  logos,
 }: StudioPreviewProps) {
   // Resolve motif metadata only when the selected layer is a catalog logo.
   const selectedLogo = selectedLayer?.type === 'logo'
-    ? LOGOS.find((l) => l.id === selectedLayer.logoId) || null
+    ? logos.find((l) => l.id === selectedLayer.logoId) || null
     : null;
 
   // On large screens the preview sticks below the navbar and stays within the viewport.
@@ -87,6 +89,7 @@ export default function StudioPreview({
         selectedLayerId={selectedLayerId}
         onSelectLayer={onSelectLayer}
         onChangeLayer={onChangeLayer}
+        logos={logos}
       />
     </div>
   );

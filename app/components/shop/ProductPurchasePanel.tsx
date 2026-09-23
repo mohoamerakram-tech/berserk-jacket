@@ -18,7 +18,7 @@
  */
 
 import React, { useState } from 'react';
-import { Product } from '@/lib/types';
+import { getProductStock, isProductSizeAvailable, Product } from '@/lib/types';
 import AddToCartButton from '@/app/components/cart/AddToCartButton';
 import WhatsAppButton from '@/app/components/shop/WhatsAppButton';
 import SizeGuideButton from '@/app/components/shop/SizeGuideButton';
@@ -30,6 +30,7 @@ interface ProductPurchasePanelProps {
 export default function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   // Centralized size selection state (single source of truth for this product)
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const soldOut = !product.inStock || getProductStock(product) <= 0;
 
   return (
     <div className="flex flex-col justify-between space-y-6">
@@ -48,12 +49,30 @@ export default function ProductPurchasePanel({ product }: ProductPurchasePanelPr
         {/* Pricing */}
         <div className="text-xl font-mono font-bold text-[#dc2626]">
           {product.price} DH
+          {product.compareAtPrice && product.compareAtPrice > product.price ? (
+            <span className="ml-3 text-sm text-stone-500 line-through">{product.compareAtPrice} DH</span>
+          ) : null}
         </div>
+
+        {soldOut && (
+          <div role="status" className="border-2 border-[#dc2626] bg-red-950 px-3 py-2 font-mono text-xs font-black uppercase text-red-300">
+            Sold out // 完売 — this piece is currently unavailable.
+          </div>
+        )}
 
         {/* Product Description */}
         <p className="font-mono text-xs text-stone-300 leading-relaxed uppercase pt-2 border-t border-stone-800">
           {product.description}
         </p>
+
+        {(product.materials || product.embroideryDetails || product.fit || product.careInstructions) && (
+          <dl className="grid gap-2 border-t border-stone-800 pt-3 font-mono text-[10px] uppercase">
+            {product.materials && <div><dt className="font-black text-stone-500">Materials</dt><dd className="mt-0.5 text-stone-300">{product.materials}</dd></div>}
+            {product.embroideryDetails && <div><dt className="font-black text-stone-500">Embroidery</dt><dd className="mt-0.5 text-stone-300">{product.embroideryDetails}</dd></div>}
+            {product.fit && <div><dt className="font-black text-stone-500">Fit</dt><dd className="mt-0.5 text-stone-300">{product.fit}</dd></div>}
+            {product.careInstructions && <div><dt className="font-black text-stone-500">Care</dt><dd className="mt-0.5 text-stone-300">{product.careInstructions}</dd></div>}
+          </dl>
+        )}
 
         {/* Sizing Matrix: Interactive Size Badges */}
         <div className="space-y-2 pt-2">
@@ -65,21 +84,29 @@ export default function ProductPurchasePanel({ product }: ProductPurchasePanelPr
             <SizeGuideButton />
           </div>
           <div className="flex flex-wrap gap-2">
-            {product.sizes.map((size) => (
+            {product.sizes.map((size) => {
+              const available = isProductSizeAvailable(product, size);
+              return (
               <button
                 type="button"
                 key={size}
-                onClick={() => setSelectedSize(size)}
+                onClick={() => available && setSelectedSize(size)}
+                disabled={!available}
                 className={`px-3 py-1 font-mono text-xs font-bold uppercase transition-all cursor-pointer border-2 border-black ${
-                  selectedSize === size
+                  !available
+                    ? 'bg-stone-800 text-stone-600 cursor-not-allowed line-through'
+                    : selectedSize === size
                     ? 'bg-black text-white shadow-[2px_2px_0px_0px_#dc2626]'
                     : 'bg-white text-black hover:bg-stone-200'
                 }`}
               >
-                {size}
+                {size}{!available ? ' · SOLD' : ''}
               </button>
-            ))}
+            )})}
           </div>
+          {!soldOut && getProductStock(product) !== Number.MAX_SAFE_INTEGER && (
+            <p className="font-mono text-[10px] font-bold uppercase text-stone-500">{getProductStock(product)} total units available</p>
+          )}
         </div>
       </div>
 
@@ -88,10 +115,10 @@ export default function ProductPurchasePanel({ product }: ProductPurchasePanelPr
         <AddToCartButton product={product} size={selectedSize} />
         
         {/* Visual WhatsApp Order CTA */}
-        <WhatsAppButton
-          href={`/checkout?productId=${encodeURIComponent(product.id)}&size=${encodeURIComponent(selectedSize || 'L')}`}
+        {!soldOut && <WhatsAppButton
+          href={`/checkout?productId=${encodeURIComponent(product.id)}&size=${encodeURIComponent(selectedSize || product.sizes.find((size) => isProductSizeAvailable(product, size)) || '')}`}
           label="ORDER VIA WHATSAPP"
-        />
+        />}
 
         <p className="font-mono text-[10px] text-stone-500 text-center uppercase tracking-wider">
           FAST EXPRESS SHIPPING · PREPAYMENT VIA VIREMENT / CASH PLUS / WAFACASH

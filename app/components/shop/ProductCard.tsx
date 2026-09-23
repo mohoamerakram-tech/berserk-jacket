@@ -13,27 +13,26 @@
  */
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/lib/types';
+import { getProductStock, Product } from '@/lib/types';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const soldOut = !product.inStock || getProductStock(product) <= 0;
   return (
     <Link
       href={`/shop/${product.slug}`}
       className="group relative block w-full aspect-[3/4] bg-stone-950 border-[3px] border-black overflow-hidden select-none transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#dc2626]"
     >
       {/* 1. Base Layer: Photography with subtle manga desaturation */}
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={product.image}
         alt={product.name}
-        fill
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        className="object-cover object-center grayscale-[20%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-300"
+        className="absolute inset-0 h-full w-full object-cover object-center grayscale-[20%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-300"
       />
 
       {/* 2. Gradient Overlay: Enhances bottom typography readability */}
@@ -56,7 +55,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       )}
 
       {/* 5. Out of Stock Stamp (Rotated Manga Seal) */}
-      {!product.inStock && (
+      {soldOut && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
           <span className="border-2 border-[#dc2626] text-[#dc2626] bg-black/80 font-mono font-black text-xs px-3 py-1 uppercase tracking-widest -rotate-12">
             OUT OF STOCK // 完売

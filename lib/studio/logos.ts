@@ -32,6 +32,7 @@ export const LOGOS: Logo[] = [
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/31a8a9561ac58a68fe0773308c365df5.png',
     canRecolor: false,
+    collectionId: 'berserk',
   },
   {
     id: '50736234f59009a66cc1d0438b83b6e0',
@@ -39,6 +40,7 @@ export const LOGOS: Logo[] = [
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/50736234f59009a66cc1d0438b83b6e0.png',
     canRecolor: true,
+    collectionId: 'berserk',
   },
   {
     id: 'bb49072aab092e3bb9831c23d44d0556',
@@ -46,6 +48,7 @@ export const LOGOS: Logo[] = [
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/bb49072aab092e3bb9831c23d44d0556.png',
     canRecolor: false,
+    collectionId: 'berserk',
   },
   {
     id: 'de49671aa7750f24cac10e188977726c',
@@ -53,6 +56,7 @@ export const LOGOS: Logo[] = [
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/de49671aa7750f24cac10e188977726c.png',
     canRecolor: true,
+    collectionId: 'berserk',
   },
   {
     id: 'fa65d47dc562676bb02c19b9e6bc6adf',
@@ -60,6 +64,7 @@ export const LOGOS: Logo[] = [
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/fa65d47dc562676bb02c19b9e6bc6adf.png',
     canRecolor: true,
+    collectionId: 'berserk',
   },
   {
     id: 'gemini-generated-image-3e2uh33e2uh33e2u',
@@ -67,6 +72,7 @@ export const LOGOS: Logo[] = [
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/gemini-generated-image-3e2uh33e2uh33e2u.png',
     canRecolor: false,
+    collectionId: 'berserk',
   },
   {
     id: 'screenshot-2026-09-17-182923-upscayl-5x-upscayl-standard-4x',
@@ -74,5 +80,6 @@ export const LOGOS: Logo[] = [
     japaneseLabel: '刺繍図案',
     path: '/images/logos/berserk/screenshot-2026-09-17-182923-upscayl-5x-upscayl-standard-4x.png',
     canRecolor: false,
+    collectionId: 'berserk',
   },
 ];

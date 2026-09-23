@@ -4,6 +4,7 @@ import Navbar from "./components/navigation/Navbar";
 import CartProvider from "@/lib/cart/CartProvider";
 import CartDrawer from "./components/cart/CartDrawer";
 import DomSafeguard from "./components/utils/DomSafeguard";
+import { CatalogProvider } from "@/lib/catalog/client";
 import "./globals.css";
 
 // Configure Geist Sans font for modern UI readability
@@ -64,6 +65,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col notranslate" translate="no" suppressHydrationWarning>
         <DomSafeguard />
         {/* Global CartProvider: Provides persistent client-side cart state to entire tree */}
+        <CatalogProvider>
         <CartProvider>
           {/* Global sticky navigation bar */}
           <Navbar />
@@ -74,6 +76,7 @@ export default function RootLayout({
           {/* Global Cart Drawer: Single instance mounted at root, accessible from any page */}
           <CartDrawer />
         </CartProvider>
+        </CatalogProvider>
       </body>
     </html>
   );
