@@ -1,132 +1,216 @@
-# Stitch bespoke jacket studio
+<p align="center">
+  <img src="docs/assets/future-stitch-logo.webp" width="420" alt="Future Stitch logo">
+</p>
 
-Next.js 16 App Router + React 19. The Node.js route handler at `POST /api/remove-bg` proxies customer PNG/JPG uploads to the public nobg API. Panel 05 (`/custom-studio?tab=import`) provides background removal, jacket color selection, drag/keyboard positioning, scale, rotation, reset, and WhatsApp ordering. Front and back each have one replaceable artwork slot with independent positioning, size and rotation. Original artwork colors are retained. Switching between Panel 04 and Panel 05 keeps uploaded artwork in memory; refreshing/leaving the page clears Panel 05 artwork. The preset studio has separate session persistence.
+<h1 align="center">Future Stitch</h1>
 
-## Local setup
+<p align="center">
+  Anime-inspired apparel commerce, collection management, and a live front/back embroidery preview studio.
+</p>
 
-Use Node.js 24 or newer (tests use native TypeScript support).
+<p align="center">
+  <a href="https://github.com/mohoamerakram-tech/berserk-jacket/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/mohoamerakram-tech/berserk-jacket/ci.yml?branch=codex%2Fsecurity-repository-baseline&style=for-the-badge&logo=githubactions&logoColor=white&label=CI" alt="CI status">
+  </a>
+  <img src="https://img.shields.io/badge/Next.js-16.4.3-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js 16.4.3">
+  <img src="https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript strict mode">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4">
+  <img src="https://img.shields.io/badge/Supabase-Production_Data-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase production data">
+  <img src="https://img.shields.io/badge/Node.js-24-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24">
+  <img src="https://img.shields.io/badge/Security-Roadmap_Active-B91C1C?style=flat-square&logo=githubsecuritylab&logoColor=white" alt="Security roadmap active">
+</p>
+
+<p align="center">
+  <strong>Status:</strong> active student development and organization review. The application is not yet approved for production orders or storage of real customer personal data.
+</p>
+
+---
+
+## Product preview
+
+<table>
+  <tr>
+    <td width="33%" align="center">
+      <img src="docs/assets/product-front.webp" alt="Front embroidery product preview">
+      <br><strong>Constructed products</strong>
+      <br>Inventory, size availability, imagery, and collection routing.
+    </td>
+    <td width="33%" align="center">
+      <img src="docs/assets/product-back.webp" alt="Back embroidery product preview">
+      <br><strong>Preset studio</strong>
+      <br>Collection-filtered motifs with independent front and back layouts.
+    </td>
+    <td width="33%" align="center">
+      <img src="docs/assets/bespoke-import.webp" alt="Imported bespoke artwork preview">
+      <br><strong>Bespoke import</strong>
+      <br>Background removal, placement, scale, rotation, and order preview.
+    </td>
+  </tr>
+</table>
+
+## Platform at a glance
+
+| Surface | Current capability | Delivery state |
+| --- | --- | --- |
+| Home and collections | Manga-inspired discovery, active collections, upcoming releases | Implemented |
+| Existing products | Product gallery, size inventory, sold-out states, cart | Implemented |
+| Preset studio | Collection-specific embroidery motifs, front/back editing | Implemented |
+| Bespoke studio | One upload per side, background removal, drag, scale, rotation | Implemented |
+| Checkout | Product and preview summaries with customer-controlled WhatsApp handoff | Development flow |
+| Admin | Single-admin collection, product, inventory, and logo management | Development baseline |
+| Production persistence | Supabase REST catalog and public catalog-media storage | Prepared, deployment pending |
+| Security program | CI, dependency auditing, ownership rules, staged release gates | Active roadmap |
+
+## Customer journey
+
+1. Choose an anime collection.
+2. Buy an existing product, customize a preset motif, or import original artwork.
+3. Configure the front and back independently.
+4. Select the garment size and review the complete order.
+5. Open a prepared WhatsApp draft and decide whether to send it.
+
+The current WhatsApp handoff does not create a durable server-side order, prove message delivery, confirm payment, or reserve stock.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Customer[Customer browser]
+    Admin[Administrator browser]
+    Next[Next.js application]
+    Catalog[(Catalog storage)]
+    Media[(Catalog media)]
+    NoBG[nobg image processor]
+    WhatsApp[WhatsApp]
+
+    Customer -->|Storefront and studio| Next
+    Admin -->|Signed HttpOnly session| Next
+    Next -->|Products, collections, logos| Catalog
+    Next -->|Validated catalog uploads| Media
+    Next -->|Bounded PNG or JPEG request| NoBG
+    NoBG -->|Transparent PNG stream| Next
+    Customer -->|User-controlled order draft| WhatsApp
+```
+
+Development uses ignored local JSON and upload directories. The planned production data path uses server-only Supabase credentials. Customer artwork crosses to the external background-removal provider only when processing is requested.
+
+Read the full [architecture and trust-boundary documentation](docs/ARCHITECTURE.md).
+
+## Repository structure
+
+```text
+app/
+  admin/              Protected catalog interface
+  api/admin/          Authenticated catalog mutations
+  api/remove-bg/      Validated background-removal proxy
+  checkout/           Product and bespoke order review
+  collection/         Collection discovery and routing
+  components/studio/  Preview editor components
+lib/
+  admin/              Session and credential verification
+  catalog/            Storage abstraction and public filtering
+  checkout/           Order snapshots and WhatsApp formatting
+  studio/             Motifs, garment options, and preview state
+supabase/              Production catalog schema
+tests/                 API boundary and failure-mode coverage
+docs/                  Architecture, operations, and security program
+.github/               CI, Dependabot, CODEOWNERS, and review templates
+```
+
+## Local development
+
+### Requirements
+
+- Node.js 24 or newer
+- npm and the committed `package-lock.json`
+
+### Installation
 
 ```sh
-npm install
+git clone https://github.com/mohoamerakram-tech/berserk-jacket.git
+cd berserk-jacket
+npm ci
 ```
 
-No API key or background-removal URL is required. Optional `.env.local` settings:
+Create a local environment file from the sanitized template.
 
-```dotenv
-# No REMBG_URL or API key is used.
-# Optional: a SINGLE IP header overwritten by a trusted reverse proxy.
-# REMBG_CLIENT_IP_HEADER=x-real-ip
-# Business WhatsApp number in international digits (no +, spaces, or dashes).
-# NEXT_PUBLIC_WHATSAPP_NUMBER=2126XXXXXXXX
+```powershell
+Copy-Item .env.example .env.local
 ```
+
+```sh
+cp .env.example .env.local
+```
+
+Start the application.
 
 ```sh
 npm run dev
 ```
 
-## Single-administrator catalogue
+Open <http://localhost:3000>. Never commit `.env.local`, real credentials, customer uploads, database exports, or order data.
 
-Customer accounts remain disabled. The private routes are:
+## Development commands
 
-- `/admin/login` — single administrator login
-- `/admin` — inventory overview
-- `/admin/collections` and `/admin/collections/new` — anime collection routing and artwork
-- `/admin/products` and `/admin/products/new` — constructed-product catalogue
-- `/admin/logos` and `/admin/logos/new` — custom-studio motif catalogue
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local Turbopack development server |
+| `npm run lint` | Run the Next.js ESLint rules |
+| `npm run typecheck` | Validate TypeScript without emitting files |
+| `npm test` | Run the background-removal API tests |
+| `npm run audit:prod` | Fail on known high-severity production dependency findings |
+| `npm run build` | Produce and validate the production application |
+| `npm run check` | Run the complete repository quality gate |
 
-Collections are the parent record for products and studio motifs. Assign every product
-and logo to one collection. The built-in anime-bar worlds are seeded automatically:
-Berserk is active, while Bleach, Death Note, Dragon Ball, Hunter × Hunter, Naruto,
-One Piece, and Chi start as upcoming. Active and upcoming collections appear on
-`/collection`; upcoming cards lead to their sealed anime preview page. Change a collection
-to active in the admin when its products and motifs are ready, and its anime-bar page will
-then lead customers to the collection’s products and filtered custom studio.
-`salesCount` on products controls the one bestseller shown for each active collection
-on the home page. Built-in anime-bar collections can be hidden as drafts but cannot be
-deleted. Other collections cannot be deleted until their products and logos are moved or
-removed, preventing broken customer routes.
+GitHub Actions runs the same quality gate on pushes and pull requests to `main`. Dependabot checks npm and GitHub Actions dependencies every week.
 
-Create local-only credentials in `.env.local` (the file is already ignored by Git):
+## Security trajectory
 
-```dotenv
-ADMIN_EMAIL=you@example.com
-# Next expands unescaped `$` in .env files, so the separators must be `\$` locally.
-# Decoded format: scrypt$<random-salt-hex>$<64-byte-scrypt-hash-hex>
-ADMIN_PASSWORD_HASH=scrypt\$RANDOM_SALT_HEX\$SCRYPT_HASH_HEX
-# At least 32 random characters. Use a different value in production.
-ADMIN_SESSION_SECRET=...
-# Optional: only set this when your host overwrites the named header.
-# ADMIN_CLIENT_IP_HEADER=x-real-ip
-```
+| Milestone | Objective | Major remaining work |
+| --- | --- | --- |
+| Development baseline | Safe collaboration and reproducible validation | Completed in this repository branch |
+| Organization review | Controlled ownership and protected merges | Ruleset, CodeQL, secret scanning, asset register |
+| Preview deployment | Public testing without real customer data | Shared rate limits, monitoring, CSP, backup validation |
+| Order readiness | Safe handling of real orders and customer details | MFA, durable orders, audit trail, retention rules, independent review |
+| Ongoing operations | Maintain and prove the security posture | Patch targets, restore drills, access reviews, SBOM and provenance |
 
-The session is signed server-side, lasts eight hours, and is stored in an HttpOnly,
-SameSite=Strict cookie (Secure in production). Every catalogue mutation verifies both
-the session and same-origin request. The login is rate-limited as an additional guard;
-configure platform-level rate limiting in production because memory limits are per instance.
+The complete plan, exit criteria, current limitations, and risk-acceptance rules are maintained in the [security roadmap](docs/SECURITY_ROADMAP.md).
 
-During local development, catalogue changes are written to `data/admin-catalog.json`
-and images to `public/uploads/catalog/`. These paths are ignored and must not be used as
-production storage on serverless hosting.
+Security-sensitive behavior already implemented includes:
 
-For production, create a free Supabase project, run [`supabase/catalog.sql`](supabase/catalog.sql)
-in its SQL editor, and add these server-only environment variables to the host:
+- Scrypt admin password verification with constant-time comparison
+- Signed, expiring, HttpOnly, SameSite=Strict admin cookies
+- Same-origin checks for administrator mutations
+- Upload size, MIME, and file-signature validation
+- Bounded external processing requests and upstream timeouts
+- Baseline browser security headers
+- Read-only CI permissions and immutable GitHub Action pins
+- Lockfile installs, weekly dependency updates, and production auditing
 
-```dotenv
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SERVICE_ROLE_KEY
-ADMIN_EMAIL=you@example.com
-# In a hosting dashboard, enter the raw value with `$` separators (no backslashes).
-ADMIN_PASSWORD_HASH=scrypt$RANDOM_SALT_HEX$SCRYPT_HASH_HEX
-ADMIN_SESSION_SECRET=...
-```
+Report suspected vulnerabilities privately according to [SECURITY.md](SECURITY.md). Do not put credentials, exploit details, customer artwork, phone numbers, or addresses in a public issue.
 
-Never prefix the service-role key or admin secrets with `NEXT_PUBLIC_`. The database table
-uses row-level security with no browser policies; only the authenticated Next.js server routes
-can mutate catalogue data. Product images and logo assets are validated as PNG/JPG/WebP and
-limited to 10 MiB before upload.
-Run the SQL file again after upgrading an older installation; its `add column if not exists`
-migration adds collection storage without deleting existing products or logos.
+## Documentation index
 
-Open `/custom-studio?tab=import` on the port printed by Next.js. Upload a PNG or JPG under 10 MiB. Wait for processing, drag the artwork, adjust sliders, then order via WhatsApp. Set the real NEXT_PUBLIC_WHATSAPP_NUMBER and restart development / rebuild production to enable ordering. The link pre-fills both sides’ filenames and placement details; customers attach artwork manually in WhatsApp. On failure the previous successful artwork stays available. SVG/AI files receive a specific friendly message; export them as PNG first. The browser file chooser filters to PNG/JPG; server validation still rejects unsupported uploads.
+| Document | Audience | Purpose |
+| --- | --- | --- |
+| [Architecture](docs/ARCHITECTURE.md) | Engineers and reviewers | Components, data lifecycle, and trust boundaries |
+| [Development and operations](docs/OPERATIONS.md) | Developers and operators | Environment variables, storage modes, validation, and deployment gate |
+| [Security roadmap](docs/SECURITY_ROADMAP.md) | Maintainers and organizations | Security milestones, risks, and release criteria |
+| [Security policy](SECURITY.md) | Security researchers | Private vulnerability reporting and scope priorities |
+| [Contributing](CONTRIBUTING.md) | Contributors | Branch, review, validation, and secure-engineering rules |
 
-```sh
-node --test tests/remove-bg.test.mjs
-npx tsc --noEmit
-npm run lint
-npm run build
-```
+## Project boundaries
 
-Manual API check (use `curl.exe` on Windows):
+- nobg is an external artwork processor. Its privacy terms, quota, and availability require production review.
+- Catalog media can be public; customer artwork and order data must not be placed in the public media bucket.
+- The current process-local rate limits are a development control, not a scaled production defense.
+- The custom admin system does not yet provide MFA, central revocation, or a durable audit trail.
+- Media licensing, privacy requirements, consumer obligations, and data retention need formal review before commercial launch.
 
-```sh
-curl -f -F "file=@artwork.png;type=image/png" http://localhost:3000/api/remove-bg -o transparent.png
-```
+## Licensing and artwork
 
-Tests cover forwarding, binary streaming, size/signature/MIME validation, vector rejection, chunked-body limits, upstream errors, timeout, and rate limits. Tests mock nobg and consume no external API quota.
-
-## External API routing and hosting
-
-Browser → your website's same-origin `POST /api/remove-bg` (field `file`) → `https://api.nobg.akshit.io/api/v1/remove-background` (field `image`) → transparent PNG streamed back. No API key headers are sent. Uploaded artwork is sent to nobg for processing; Tailscale and the self-hosted rembg server are no longer used by this route.
-
-Run the Next.js Node server with outbound HTTPS access. Production: `npm run build` then `npm start`, behind your HTTPS reverse proxy. Remove obsolete `REMBG_URL` settings if desired; the route ignores them. The existing `REMBG_CLIENT_IP_HEADER` name remains for rate-limit configuration compatibility.
-
-The provider's stated free allowance is 20 requests/day per IP. Requests from all customers typically share your backend's public egress IP, so this is a shared site quota, not a per-customer allowance. A provider 429 becomes `UPSTREAM_RATE_LIMITED` with a friendly message and any upstream Retry-After header preserved.
-
-## Limits and reverse proxy
-
-- Only PNG/JPEG MIME types with matching file signatures are accepted. Invalid raster content is rejected by the provider. Files over 10 MiB are never forwarded. Multipart bodies are bounded to 10 MiB + 64 KiB while reading, even without Content-Length.
-- Processing is aborted after 30 seconds, including the upstream response stream. Before streaming begins a timeout returns JSON HTTP 504. Once HTTP headers have been sent, an interrupted stream cannot become JSON; the frontend catches failed downloads and shows an error. The frontend remains unchanged, including its 60-second fallback deadline and loading copy; the backend now aborts at 30 seconds.
-- Rate limit: 10 requests/minute per trusted IP, in memory per Node process. Only set `REMBG_CLIENT_IP_HEADER` when a trusted reverse proxy **overwrites** that header and clients cannot bypass the proxy. For nginx, set `proxy_set_header X-Real-IP $remote_addr;` and use `REMBG_CLIENT_IP_HEADER=x-real-ip`. Do not pass through a client-supplied header. Without a trusted header, all clients safely share one 10/min bucket.
-- For multiple workers/replicas, enforce the same limit in a shared reverse proxy or replace the memory store with Redis. Counters reset on restart.
-- Configure the ingress body limit to at least 11 MiB and its response timeout above 35 seconds; retain the stricter application file limit. Provider upload limits/timeouts can otherwise reject requests before this handler runs.
-- Error responses: `INVALID_UPLOAD` (400), `FILE_TOO_LARGE` (413), `VECTOR_NOT_SUPPORTED` / `UNSUPPORTED_FORMAT` (415), `RATE_LIMITED` (429 with Retry-After), `UPSTREAM_RATE_LIMITED` (429), `PROCESSING_FAILED` (502), `SERVICE_UNAVAILABLE` (503), `PROCESSING_TIMEOUT` (504). Upstream failures are logged server-side without image contents.
-
-## Preview assets
-
-Blank mockups come from `public/images/studio/` and `lib/studio/options.ts`. Panel 05 selects frontImage/backImage from the catalog. The catalog currently reuses the front mockup for the back because no separate blank back mockup was supplied. Both sides still retain independent artwork and transforms. The old simulated consultation submission has been replaced by the actual preview workflow; no order or consultation is silently submitted.
-
-## WhatsApp ordering and automatic confirmations
-
-The business destination is configured locally as `NEXT_PUBLIC_WHATSAPP_NUMBER=212639898193`. Set this variable in the production build environment too. Current app-only ordering opens a WhatsApp draft; the customer must send it and attach the prepared front/back previews. Opening WhatsApp does not prove delivery or confirm payment, so checkout keeps the cart and does not claim the order was transmitted. Bespoke artwork is copied into IndexedDB before navigation, keyed per tab with a 24-hour expiry, so temporary object URLs cannot disappear on checkout.
-
-Automatic outbound confirmations **are not enabled**. A phone number alone is insufficient: connect the number to Meta WhatsApp Business Cloud API (or an official provider), provision the phone-number ID and server-side access token, and obtain approved templates for business-initiated confirmations outside an open customer-service window. Keep credentials server-side, never in NEXT_PUBLIC variables or chat messages. The production implementation also needs durable orders, media upload/storage, signed delivery webhooks, and idempotent sending/retry handling. Do not present an API acceptance response as customer delivery or paid-order confirmation.
+No open-source license has been selected. Anime names, logos, artwork, and other third-party assets remain the property of their respective owners. This student prototype does not claim affiliation or commercial licensing. Record the source, owner, license, and allowed use of every production asset before launch.

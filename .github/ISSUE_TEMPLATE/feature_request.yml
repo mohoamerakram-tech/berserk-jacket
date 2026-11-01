@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a customer, operator, or security improvement.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem should this solve, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe observable behavior rather than a specific implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Security and privacy impact
+      description: Note any customer data, authentication, uploads, payments, or external services involved.
