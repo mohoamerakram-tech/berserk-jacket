@@ -1,0 +1,38 @@
+name: Bug report
+description: Report a reproducible problem that does not contain sensitive data.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: Do not include passwords, tokens, customer artwork, addresses, phone numbers, or security vulnerabilities.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Explain the observed behavior and what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      placeholder: "1. Open…\n2. Select…\n3. Observe…"
+    validations:
+      required: true
+  - type: input
+    id: route
+    attributes:
+      label: Affected route
+      placeholder: /custom-studio
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, operating system, branch, and commit if known.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Data check
+      options:
+        - label: I removed secrets and customer personal data from this report.
+          required: true
