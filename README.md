@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/mohoamerakram-tech/berserk-jacket/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/mohoamerakram-tech/berserk-jacket/ci.yml?branch=codex%2Fsecurity-repository-baseline&style=for-the-badge&logo=githubactions&logoColor=white&label=CI" alt="CI status">
+    <img src="https://img.shields.io/github/actions/workflow/status/mohoamerakram-tech/berserk-jacket/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI" alt="CI status">
   </a>
   <img src="https://img.shields.io/badge/Next.js-16.4.3-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js 16.4.3">
   <img src="https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19">
@@ -172,7 +172,7 @@ GitHub Actions runs the same quality gate on pushes and pull requests to `main`.
 
 | Milestone | Objective | Major remaining work |
 | --- | --- | --- |
-| Development baseline | Safe collaboration and reproducible validation | Completed in this repository branch |
+| Development baseline | Safe collaboration and reproducible validation | Completed on main |
 | Organization review | Controlled ownership and protected merges | Ruleset, CodeQL, secret scanning, asset register |
 | Preview deployment | Public testing without real customer data | Shared rate limits, monitoring, CSP, backup validation |
 | Order readiness | Safe handling of real orders and customer details | MFA, durable orders, audit trail, retention rules, independent review |
